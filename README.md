@@ -1,11 +1,17 @@
 # Sung Sungeet — landing page
 
-Single-page site for a Delhi NCR live-music community. Two features:
+Single-page site for a Delhi NCR live-music community.
 
 1. **Scroll walkthrough** — a pinned, scroll-scrubbed pass through five moments
    of one night, from the back of the room to load-out.
-2. **Shows calendar** — upcoming dates from Neon Postgres, with an anonymous
-   "I'm going" RSVP and city / event-type filters.
+2. **Calendar** — a horizontal day strip (01–30) over a month grid. Tap a date
+   in either and it opens a poster-led event card showing the venue, the team
+   playing and that night's lineup; back returns to the month. Filters by team,
+   city and event type.
+3. **Teams** — each lineup with its members, photo and showreel, and a link
+   through to their dates.
+4. **Rooms** — three full-bleed photo panels for the kinds of gigs they play.
+5. **Join us** — a prefilled mailto for people who want in.
 
 React + Vite + Tailwind v4, GSAP ScrollTrigger + Lenis, deployed on Vercel.
 Stack and conventions follow the existing `sungeet-attendance` repo.
@@ -94,8 +100,15 @@ vercel env add DATABASE_URL
 
 ### 4. Placeholder contact details
 
-- `bookings@sungsungeet.example` — in `src/components/Booking.tsx` and `Footer.tsx`
+- `bookings@sungsungeet.example` — in `Rooms.tsx` and `Footer.tsx`
+- `join@sungsungeet.example` — in `JoinUs.tsx` and `Footer.tsx`
 - `https://example.com/tickets/…` — in `db/seed.sql`
+
+### 4b. Team names are invented
+
+"The Tuesday Trio", "Sufi Collective", "The Full Band" and every member name in
+`db/seed.sql` and `src/data/teams.ts` are **made up**. Replace them with the
+real lineups.
 
 ### 5. Name
 
@@ -134,6 +147,44 @@ Lenis is only instantiated when reduced motion is off — smoothing *is* motion.
 
 Scene copy lives in `src/data/scenes.ts`, art in `src/scenes/Scenes.tsx`.
 
+## Calendar: visual direction
+
+This section is deliberately styled apart from the rest of the page — thin gold
+rules, bordered boxes, letterspaced caps, tabular day numbers — after the
+Piano Man reference. It keeps the brand navy as the ground rather than adopting
+their near-black and tan, so it reads as Sung Sungeet rather than as a copy of
+a venue that is itself on the calendar.
+
+Note that the whole page is now dark; the cream calendar that used to break it
+up is gone. If it wants a light section back, the Teams block is the natural
+candidate.
+
+The caps are a system here (every UI label in this section), not decorative
+eyebrow labels — the thing the original brief warned against.
+
+### Event posters
+
+`shows.poster_url` holds portrait artwork (roughly 3:4) per event, uploaded by
+the staff backend. When it's null the card falls back to a typographic panel
+built from the venue and set name rather than faking a poster — so an
+undesigned date still looks deliberate. No real posters are wired in yet.
+
+## Calendar behaviour
+
+- Only months that actually contain shows are reachable; the arrows disable at
+  each end rather than paging into empty months forever.
+- Dates are keyed by **IST civil date**, so a 9pm Delhi show never lands on the
+  previous day for a viewer abroad.
+- Days with shows are buttons with a full aria-label ("19 September: 1 show,
+  The Piano Man"); empty days are inert.
+- Opening a date moves focus to the back button so keyboard users aren't
+  stranded.
+- Phones show a dot per show; tablet up shows the venue name in the cell.
+- The day strip auto-centres on the selected date (or the month's first show),
+  so on a phone you aren't left staring at the 1st when the gig is on the 19th.
+- All 31 days fit across the strip on desktop; it scrolls, scrollbar hidden, on
+  narrow screens.
+
 ## Accessibility
 
 - Scene art is `aria-hidden`; the captions carry the meaning
@@ -143,12 +194,55 @@ Scene copy lives in `src/data/scenes.ts`, art in `src/scenes/Scenes.tsx`.
   cream halves of the page
 - Filter groups are `fieldset`/`legend`; RSVP buttons carry `aria-pressed`
 
-## API
+## Architecture: this site is read-only
 
-| Route | Method | Notes |
-|---|---|---|
-| `/api/shows` | GET | Published, upcoming, chronological, with RSVP counts. `?visitor=<uuid>` marks which ones you're going to. Cached 60s. |
-| `/api/rsvp` | POST | `{ showId, visitorId, going }`. Toggles one row. Validates the uuid. |
+A separate **staff/manager backend** will own the schedule. Managers enter
+dates, assign a team and adjust the per-date lineup there; this public site
+only reads. The two share the Neon database — `db/schema.sql` is the contract.
+
+The only table this site writes to is `rsvps`.
+
+### The 24-hour refresh
+
+Because the schedule changes at most daily, the two managed endpoints are
+cached at the edge for a day:
+
+| Route | Method | Cache | Notes |
+|---|---|---|---|
+| `/api/shows` | GET | `s-maxage=86400`, SWR | Upcoming shows with team and lineup. |
+| `/api/teams` | GET | `s-maxage=86400`, SWR | Active teams with default rosters. |
+| `/api/rsvp-state` | GET | **none** | Live counts + whether this visitor is going. |
+| `/api/rsvp` | POST | — | Toggles one row. Validates the uuid. |
+
+RSVP state is deliberately a **separate, uncached** request. If counts rode
+along with `/api/shows` they'd be frozen for a day and the "I'm going" number
+would look broken.
+
+To publish a schedule change sooner than the daily rotation, purge the Vercel
+cache for those paths or redeploy.
 
 `visitorId` is an anonymous uuid in `localStorage` — no accounts, no personal
 data. It exists so an RSVP can be undone and counted once.
+
+## Teams and per-date lineups
+
+A show points at a **team** (`shows.team_id`). The team has a default roster in
+`team_members`. When a specific night differs — someone's away, someone sits
+in — the staff tool writes rows into `show_lineup` for that show, and those
+**replace** the default roster for that date only. The site shows "Lineup
+adjusted for this date." whenever an override exists.
+
+## Team media — still to decide
+
+Team photos and showreels render placeholders right now (`photo_url` /
+`video_url` are null). You said you want these to load instantly, which rules
+out hotlinking Instagram. When you're ready, the realistic options are:
+
+- **Vercel Blob** — upload once, served from the edge CDN, immutable URLs. Best
+  fit for "instant" with no build step.
+- **Files in `public/`** — fastest possible and cached forever, but every media
+  change needs a redeploy and the repo grows.
+
+Either way the site only needs a URL per team, so switching is a data change,
+not a code change. Poster images matter more than the video itself for
+perceived speed — send a still per team even if the clip comes later.

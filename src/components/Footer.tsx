@@ -37,6 +37,14 @@ export default function Footer() {
               bookings@sungsungeet.example
             </a>
           </li>
+          <li>
+            <a
+              href="mailto:join@sungsungeet.example"
+              className="underline decoration-amber-400 underline-offset-4 hover:text-cream-50"
+            >
+              join@sungsungeet.example
+            </a>
+          </li>
         </ul>
       </div>
     </footer>
