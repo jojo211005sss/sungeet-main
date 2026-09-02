@@ -1,0 +1,124 @@
+@import "tailwindcss";
+
+/* ---------------------------------------------------------------------------
+   Design tokens — The Sunggeet / Sung Sungeet
+   Not invented. Two measured sources:
+
+   1. The logo badge (public/brand/sunggeet-mark.png), sampled directly:
+        navy   #091932   cream  #f7f4ef   shadow maroon #2a0f18
+   2. The account's own footage, sampled across 36 frames. The rooms are
+      overwhelmingly tungsten — hue 15–30°, dominant values #d48d46 (amber),
+      #aa5538 (rust), #d4b18d (warm sand), over a #2a1a15 base.
+
+   So: navy and cream are the identity, amber and rust are the light the band
+   actually plays under. Navy grounds it; the warm accents keep it from
+   reading as another dark-blue product page.
+--------------------------------------------------------------------------- */
+@theme {
+  /* Identity — measured from the badge */
+  --color-navy-950: #050c19;
+  --color-navy-900: #091932;
+  --color-navy-800: #0e2244;
+  --color-navy-700: #16315c;
+  --color-maroon-900: #2a0f18;
+
+  --color-cream-50: #f7f4ef;
+  --color-cream-200: #ddd6ca;
+  --color-cream-400: #9aa6bb;
+
+  /* The light in the room — measured from the footage */
+  --color-amber-400: #d48d46;
+  --color-amber-300: #e3ab6d;
+  --color-rust-500: #aa5538;
+  --color-sand-300: #d4b18d;
+
+  --font-display: "Instrument Serif", "Iowan Old Style", Georgia, serif;
+  --font-sans: "Archivo", ui-sans-serif, system-ui, -apple-system, sans-serif;
+  --font-deva: "Noto Serif Devanagari", "Instrument Serif", serif;
+
+  --text-hero: clamp(2.75rem, 8.5vw, 7rem);
+  --text-scene: clamp(1.85rem, 5vw, 3.5rem);
+  --text-section: clamp(2rem, 5vw, 3.5rem);
+}
+
+@layer base {
+  html {
+    /* Lenis drives scrolling; native smooth would fight it. */
+    scroll-behavior: auto;
+    -webkit-text-size-adjust: 100%;
+  }
+
+  body {
+    margin: 0;
+    background-color: var(--color-navy-950);
+    color: var(--color-cream-50);
+    font-family: var(--font-sans);
+    font-synthesis-weight: none;
+    -webkit-font-smoothing: antialiased;
+    overflow-x: hidden;
+  }
+
+  /* Visible, high-contrast focus on every interactive element. Amber reads
+     against both the navy and the cream halves of the page. */
+  a:focus-visible,
+  button:focus-visible,
+  select:focus-visible,
+  input:focus-visible,
+  [tabindex]:focus-visible {
+    /* Longhands, not the shorthand: if the custom property ever fails to
+       resolve, the shorthand drops out entirely and the browser falls back to
+       its own focus ring. Longhands degrade one property at a time. */
+    outline-width: 2px;
+    outline-style: solid;
+    outline-color: var(--color-amber-400, #d48d46);
+    outline-offset: 3px;
+    border-radius: 2px;
+  }
+
+  ::selection {
+    background: var(--color-amber-400);
+    color: var(--color-navy-950);
+  }
+
+  img {
+    max-width: 100%;
+  }
+
+  /* Better rag on headings, no orphans in body copy. */
+  :where(h1, h2, h3) {
+    text-wrap: balance;
+  }
+
+  :where(p, dd, li) {
+    text-wrap: pretty;
+  }
+}
+
+@layer utilities {
+  /* Grain over the photography — the source frames are phone video, and a
+     little noise reads as intent rather than compression. */
+  .u-grain::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    z-index: 25;
+    opacity: 0.22;
+    mix-blend-mode: overlay;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='140' height='140' filter='url(%23n)' opacity='0.55'/%3E%3C/svg%3E");
+  }
+
+  .u-rule {
+    border-color: color-mix(in srgb, var(--color-cream-400) 26%, transparent);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
