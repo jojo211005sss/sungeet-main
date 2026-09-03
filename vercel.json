@@ -3,24 +3,25 @@
   "framework": "vite",
   "buildCommand": "npm run build",
   "outputDirectory": "dist",
+  "rewrites": [
+    {
+      "comment": "Single-page app: serve index.html for any non-API path so a typed or shared URL never 404s. The negative lookahead keeps /api/* on the functions.",
+      "source": "/((?!api/).*)",
+      "destination": "/"
+    }
+  ],
   "headers": [
     {
       "source": "/scenes/(.*)",
-      "headers": [
-        {
-          "key": "cache-control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
+      "headers": [{ "key": "cache-control", "value": "public, max-age=31536000, immutable" }]
+    },
+    {
+      "source": "/rooms/(.*)",
+      "headers": [{ "key": "cache-control", "value": "public, max-age=31536000, immutable" }]
     },
     {
       "source": "/brand/(.*)",
-      "headers": [
-        {
-          "key": "cache-control",
-          "value": "public, max-age=31536000, immutable"
-        }
-      ]
+      "headers": [{ "key": "cache-control", "value": "public, max-age=31536000, immutable" }]
     }
   ]
 }

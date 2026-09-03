@@ -1,4 +1,4 @@
-import { db, json } from './_db'
+import { db, hasDb, json } from './_db'
 
 /**
  * GET /api/shows — published, upcoming, chronological, with team + lineup.
@@ -15,6 +15,11 @@ const DAY = 86400
 
 export default async function handler(request: Request) {
   if (request.method !== 'GET') return json({ error: 'method not allowed' }, 405)
+
+  // A demo deployment has no database. Answer with a clear, non-error status so
+  // this doesn't fill the Vercel logs with 500s that look like real faults —
+  // the client falls back to its seed data either way.
+  if (!hasDb()) return json({ code: 'no_database', error: 'no database configured' }, 503)
 
   try {
     const sql = db()

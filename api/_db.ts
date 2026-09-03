@@ -4,6 +4,8 @@ import { neon } from '@neondatabase/serverless'
  * Neon HTTP client. Same DATABASE_URL convention as the sungeet-attendance
  * repo, so one Neon project can back both with separate branches.
  */
+export const hasDb = () => Boolean(process.env.DATABASE_URL)
+
 export function db() {
   const url = process.env.DATABASE_URL
   if (!url) throw new Error('DATABASE_URL is not set')

@@ -1,4 +1,4 @@
-import { db, isUuid, json } from './_db'
+import { db, hasDb, isUuid, json } from './_db'
 
 /**
  * POST /api/rsvp — toggle "I'm going" for one anonymous visitor.
@@ -6,6 +6,11 @@ import { db, isUuid, json } from './_db'
  */
 export default async function handler(request: Request) {
   if (request.method !== 'POST') return json({ error: 'method not allowed' }, 405)
+
+  // A demo deployment has no database. Answer with a clear, non-error status so
+  // this doesn't fill the Vercel logs with 500s that look like real faults —
+  // the client falls back to its seed data either way.
+  if (!hasDb()) return json({ code: 'no_database', error: 'no database configured' }, 503)
 
   let body: { showId?: unknown; visitorId?: unknown; going?: unknown }
   try {

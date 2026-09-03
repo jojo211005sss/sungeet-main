@@ -21,7 +21,7 @@ const INSIDE = [
   },
 ]
 
-type State = 'idle' | 'sending' | 'done' | 'error'
+type State = 'idle' | 'sending' | 'done' | 'error' | 'demo'
 
 export default function Community() {
   const [state, setState] = useState<State>('idle')
@@ -48,10 +48,18 @@ export default function Community() {
         headers: { 'content-type': 'application/json' },
         body: JSON.stringify(payload),
       })
-      if (!res.ok) {
-        const body = (await res.json().catch(() => null)) as { error?: string } | null
-        throw new Error(body?.error ?? `Request failed (${res.status})`)
+      const body = (await res.json().catch(() => null)) as
+        | { error?: string; code?: string }
+        | null
+
+      if (body?.code === 'no_database') {
+        // The endpoint is telling us this deployment has no database. That's a
+        // known state on the demo, not a fault — don't cry wolf.
+        setState('demo')
+        return
       }
+
+      if (!res.ok) throw new Error(body?.error ?? `Request failed (${res.status})`)
       setState('done')
     } catch (err) {
       // Never claim it worked when it didn't — a silent failure here means
@@ -151,7 +159,18 @@ export default function Community() {
             </p>
           </div>
 
-          {state === 'done' ? (
+          {state === 'demo' ? (
+            <div className="border border-amber-400/50 bg-navy-950 p-7">
+              <p className="font-display text-[1.5rem] text-cream-50">
+                This is a demo build.
+              </p>
+              <p className="mt-3 font-sans text-[0.9rem] leading-relaxed text-cream-400">
+                The form works, but there&rsquo;s no database connected yet, so
+                nothing was stored and nobody was notified. On the live site
+                this reaches whoever reviews requests.
+              </p>
+            </div>
+          ) : state === 'done' ? (
             <div className="border border-amber-400/50 bg-navy-950 p-7">
               <p className="font-display text-[1.5rem] text-cream-50">
                 Request received.

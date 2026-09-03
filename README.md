@@ -21,6 +21,39 @@ Stack and conventions follow the existing `sungeet-attendance` repo.
 
 ---
 
+## Deploying a demo
+
+The site runs fine with **no database** — every read endpoint answers `503
+{code:"no_database"}` and the front end falls back to the seed data in
+`src/data/`, so the calendar, teams and portal all render. The community form
+says plainly that it's a demo build and nothing was stored.
+
+Easiest route (no CLI, and it re-deploys on every push):
+
+1. vercel.com → **Add New → Project → Import** `jojo211005sss/sungeet-main`
+2. Framework preset: **Vite**. Everything else is already in `vercel.json`.
+3. Deploy. No environment variables needed for a demo.
+
+Or from the terminal:
+
+```bash
+npx vercel login     # interactive, one time
+npx vercel --prod
+```
+
+To connect the database later, add `DATABASE_URL` in the project's
+Environment Variables and redeploy — the seed fallback disappears on its own.
+
+### Before sending a demo link to a client
+
+- **The scene and room photos are frames of real people**, taken from the
+  band's Instagram. A Vercel URL is public to anyone who has it.
+- **Every date, venue, team and member name is invented.** "The Tuesday
+  Trio", "Aditya", "Depot48 on 12 Sept" — none of it is real. A client will
+  probably assume it is.
+- `bookings@sungsungeet.example` and `join@sungsungeet.example` go nowhere.
+- The member sign-in at `#member` accepts anything, and says so.
+
 ## Run it
 
 ```bash

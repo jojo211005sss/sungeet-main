@@ -1,4 +1,4 @@
-import { db, json } from './_db'
+import { db, hasDb, json } from './_db'
 
 /**
  * POST /api/community-request — someone asking for a login to the members
@@ -31,6 +31,18 @@ export default async function handler(request: Request) {
   if (!name) return json({ error: 'Please tell us your name' }, 400)
   if (!email || !EMAIL_RE.test(email))
     return json({ error: 'That email does not look right' }, 400)
+
+  // No database wired up yet — as on a demo deployment. Say so plainly rather
+  // than throwing a 500 that reads as "broken", or worse, pretending it saved.
+  if (!hasDb()) {
+    return json(
+      {
+        code: 'no_database',
+        error: 'Demo deployment — requests are not being stored yet.',
+      },
+      503,
+    )
+  }
 
   try {
     const sql = db()
