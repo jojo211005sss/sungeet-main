@@ -12,24 +12,42 @@ export function PhotoScene({
   art,
   index,
   eager,
+  useVideo = false,
 }: {
   art: SceneArt
   index: number
   eager: boolean
+  /** When true and the scene has a clip, render it for scroll to scrub. */
+  useVideo?: boolean
 }) {
+  const clip = useVideo ? art.video : undefined
   return (
     <>
       {/* Near: the photograph, pushing in. */}
       <div data-depth={1} className="absolute inset-0 will-change-transform">
-        <img
-          src={art.src}
-          alt=""
-          decoding="async"
-          loading={eager ? 'eager' : 'lazy'}
-          fetchPriority={index === 0 ? 'high' : 'low'}
-          className="h-full w-full object-cover"
-          style={{ objectPosition: art.focal }}
-        />
+        {clip ? (
+          <video
+            data-scrub
+            src={clip}
+            poster={art.src}
+            muted
+            playsInline
+            preload="auto"
+            // Deliberately not autoplay: scroll position sets currentTime.
+            className="h-full w-full object-cover"
+            style={{ objectPosition: art.focal }}
+          />
+        ) : (
+          <img
+            src={art.src}
+            alt=""
+            decoding="async"
+            loading={eager ? 'eager' : 'lazy'}
+            fetchPriority={index === 0 ? 'high' : 'low'}
+            className="h-full w-full object-cover"
+            style={{ objectPosition: art.focal }}
+          />
+        )}
         {/* Navy grade — pulls the phone-video colour toward the brand ground. */}
         <div
           className="absolute inset-0 mix-blend-color"

@@ -107,6 +107,28 @@ export default function ScrollWalkthrough() {
           return
         }
 
+        // Scrub any clip in this scene across its segment of the timeline, so
+        // scroll position maps straight onto playback time.
+        const video = scene.querySelector<HTMLVideoElement>('video[data-scrub]')
+        if (video) {
+          const playhead = { t: 0 }
+          tl.to(
+            playhead,
+            {
+              t: 1,
+              duration: 1.5,
+              onUpdate: () => {
+                // readyState < 2 means no frame is decoded yet; seeking then
+                // throws the element into a bad state on Safari.
+                if (video.readyState >= 2 && Number.isFinite(video.duration)) {
+                  video.currentTime = playhead.t * video.duration
+                }
+              },
+            },
+            Math.max(0, i - 0.25),
+          )
+        }
+
         const layers = gsap.utils.toArray<HTMLElement>('[data-depth]', scene)
         layers.forEach((layer) => {
           const d = parseFloat(layer.dataset.depth ?? '0')
@@ -159,7 +181,12 @@ export default function ScrollWalkthrough() {
               className="absolute inset-0 overflow-hidden will-change-[opacity,transform]"
               style={{ zIndex: i + 1 }}
             >
-              <PhotoScene art={art} index={i} eager={i < 2} />
+              <PhotoScene
+                art={art}
+                index={i}
+                eager={i < 2}
+                useVideo={!isMobile}
+              />
             </div>
           ))}
         </div>

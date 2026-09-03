@@ -73,15 +73,35 @@ npm i -g vercel && vercel dev
 
 ## ⚠️ What still needs swapping in
 
+### 1a. Scroll-scrubbed clips
+
+Scenes 02 and 04 are real footage, scrubbed by scroll position: `currentTime`
+is driven from that scene's slice of the ScrollTrigger timeline, so the clip
+plays forward as you scroll into it and backward as you scroll out.
+
+Encoded for *seeking*, not for playback: 15fps, 900px tall, and a keyframe
+every 5 frames (`-g 5`). Dense keyframes are what make scrubbing smooth — a
+normal encode has keyframes seconds apart and seeks like a slideshow. That
+costs size, hence 1.1MB each rather than ~300KB.
+
+Desktop only. Phones get the still, because seeking a video on every scroll
+frame is exactly the janky scrub the brief said not to ship.
+
 ### 1. Scene photography — placeholder
 
-`public/scenes/01-room.jpg` … `05-after.jpg` are **frames lifted from a screen
-recording of the band's own Instagram**. They are the right content and the
-right colour, but they are not production assets:
+Scenes 01–04 now come from two clips shot at a real event — much better
+quality than the Instagram screen-recording frames they replaced, and the
+mapping is honest: video B is the room from among the audience (01, 02), and
+video A is shot from behind the performer looking out at the crowd, which is
+scene 04's brief exactly.
 
-- phone-video resolution, re-compressed through Instagram
-- some still carry burned-in reel captions ("hum har Tuesday stage")
-- vertical 9:16, so they crop hard in a landscape viewport
+Still imperfect:
+
+- both clips are **portrait**, so they crop hard in a landscape viewport
+- **scene 05 (after the set) has no real material** and is still an Instagram
+  screen-recording frame
+- scene 03 is a crop of the performer's back, not a face — there's no close-up
+  in either clip
 
 **What to send to replace them:** five landscape (or at minimum 4:5) stills at
 1600px or wider, straight from the camera roll — no Instagram export — one for
