@@ -138,9 +138,15 @@ export default function Community() {
             </p>
             <p className="mt-6 font-sans text-[0.82rem] text-cream-400">
               Already in?{' '}
-              <span className="text-cream-50/45">
-                Member sign-in is not live yet — it&rsquo;s the next thing being
-                built.
+              <a
+                href="#member"
+                className="text-cream-50 underline decoration-amber-400 underline-offset-4 hover:text-amber-400"
+              >
+                Member sign-in
+              </a>
+              {' '}
+              <span className="text-cream-50/40">
+                — prototype, accepts anything
               </span>
             </p>
           </div>

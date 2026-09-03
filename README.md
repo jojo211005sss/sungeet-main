@@ -180,6 +180,34 @@ Two things worth knowing if you touch this:
   `e.detail === 0` (keyboard or programmatic). A real tap fires both, which
   otherwise turns two pages at once.
 
+## Member area (PROTOTYPE — not authentication)
+
+`#member` renders `src/components/MemberArea.tsx`: a mock sign-in and the
+gated portal (behind the scenes / meet the cast / how it started), so the flow
+and UI can be judged before committing to a real auth approach.
+
+**The sign-in accepts anything.** `src/lib/useMockMember.ts` writes a fake
+session to localStorage and verifies nothing. Two things deliberately stop this
+becoming a security hole if it ever ships:
+
+1. **Nothing real is behind it.** The portal renders local placeholder content
+   from `src/data/portal.ts` — no API call, no media URL, no secret.
+2. **The sign-in screen prints its own demo credentials**, so it cannot be
+   mistaken for a working gate. A red banner sits on every member screen.
+
+### Before this becomes real
+
+Gating the page is not gating the content. If the behind-the-scenes clips end
+up at guessable CDN URLs, a login is decoration — one shared link and they're
+public. Real media needs **signed, expiring URLs** (Vercel Blob, S3) or
+**signed playback tokens** (Cloudflare Stream, Mux, which also give adaptive
+quality and suit the "instant load" requirement better than raw files).
+
+Auth options were laid out in conversation; the leading recommendation is
+magic links / email codes against an approved-email list — no passwords to
+forget, leak or reset, and fans stay out of the staff database entirely.
+Not yet decided.
+
 ## Community section
 
 `src/components/Community.tsx` + `api/community-request.ts` +

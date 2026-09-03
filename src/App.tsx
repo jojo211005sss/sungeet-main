@@ -6,15 +6,21 @@ import Calendar from './components/Calendar'
 import Teams from './components/Teams'
 import Rooms from './components/Rooms'
 import Community from './components/Community'
+import MemberArea from './components/MemberArea'
 import JoinUs from './components/JoinUs'
 import Footer from './components/Footer'
 import { useLenis } from './lib/useLenis'
 import { useReducedMotion } from './lib/useMediaQuery'
 import { useSiteData } from './lib/useSiteData'
+import { useHashView } from './lib/useHashView'
 
 export default function App() {
   const reduced = useReducedMotion()
-  useLenis(!reduced)
+  const hash = useHashView()
+  const inMemberArea = hash === '#member'
+
+  // Lenis is for the long scrolling page; the member area is a plain document.
+  useLenis(!reduced && !inMemberArea)
 
   const data = useSiteData()
 
@@ -33,6 +39,8 @@ export default function App() {
       })
     }
   }
+
+  if (inMemberArea) return <MemberArea />
 
   return (
     <>
