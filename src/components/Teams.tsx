@@ -5,12 +5,18 @@ type Props = {
   teams: Team[]
   activeSlug: string | 'all'
   onPickTeam: (slug: string) => void
+  onBookTeam: (slug: string) => void
 }
 
 /** Slight, fixed tilts so the cards read as pinned-up prints, not a CSS grid. */
 const TILT = ['-1.4deg', '0.9deg', '-0.6deg']
 
-export default function Teams({ teams, activeSlug, onPickTeam }: Props) {
+export default function Teams({
+  teams,
+  activeSlug,
+  onPickTeam,
+  onBookTeam,
+}: Props) {
   if (teams.length === 0) return null
 
   return (
@@ -80,13 +86,22 @@ export default function Teams({ teams, activeSlug, onPickTeam }: Props) {
                   ))}
                 </ul>
 
-                <button
-                  type="button"
-                  onClick={() => onPickTeam(team.slug)}
-                  className="mt-5 self-start border border-amber-400 px-4 py-2 font-sans text-[0.82rem] text-amber-400 transition-colors hover:bg-amber-400 hover:text-navy-950"
-                >
-                  {active ? 'Showing their dates' : 'See their dates'}
-                </button>
+                <div className="mt-5 flex flex-wrap gap-3">
+                  <button
+                    type="button"
+                    onClick={() => onPickTeam(team.slug)}
+                    className="border border-amber-400 px-4 py-2 font-sans text-[0.82rem] text-amber-400 transition-colors hover:bg-amber-400 hover:text-navy-950"
+                  >
+                    {active ? 'Showing their dates' : 'See their dates'}
+                  </button>
+                  <button
+                    type="button"
+                    onClick={() => onBookTeam(team.slug)}
+                    className="border border-cream-50/30 px-4 py-2 font-sans text-[0.82rem] text-cream-50 transition-colors hover:border-cream-50 hover:bg-cream-50 hover:text-navy-950"
+                  >
+                    Book them
+                  </button>
+                </div>
               </article>
             )
           })}

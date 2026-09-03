@@ -1,3 +1,6 @@
+import { useEffect, useRef } from 'react'
+import { useReducedMotion } from '../lib/useMediaQuery'
+
 const ROOMS = [
   {
     n: '01',
@@ -5,6 +8,9 @@ const ROOMS = [
     kind: 'Cafés and open jams',
     body: 'We bring the players, the café brings the room, and anyone who wants the mic gets it. Put your name down at the counter.',
     img: '/rooms/cafes.jpg',
+    // No café clip yet — the two we have are from a hall date. Drop a file in
+    // and set it here; the hover-to-play rig is already wired.
+    video: null as string | null,
     focal: '50% 55%',
     side: 'left' as const,
     tilt: '-1.6deg',
@@ -15,6 +21,7 @@ const ROOMS = [
     kind: 'Private events and weddings',
     body: 'Sangeet, cocktail hour, house parties, offices. The setlist gets built around your people, not our catalogue.',
     img: '/rooms/private.jpg',
+    video: '/scenes/04-theroom.mp4',
     focal: '50% 40%',
     side: 'right' as const,
     tilt: '1.3deg',
@@ -25,6 +32,7 @@ const ROOMS = [
     kind: 'Clubs and stage shows',
     body: 'Six pieces, a proper set, and the volume to match. Awards nights, club dates and festival slots across NCR.',
     img: '/rooms/stage.jpg',
+    video: null as string | null,
     focal: '55% 45%',
     side: 'left' as const,
     tilt: '-0.9deg',
@@ -34,15 +42,57 @@ const ROOMS = [
 /**
  * Editorial spread rather than three equal columns: each room is a tilted
  * print with a caption card overlapping its corner, an outlined numeral
- * bleeding off the edge, and a rotated stamp. The alternating sides give the
- * section a vertical rhythm a symmetric grid can't.
+ * bleeding off the edge, and a rotated stamp.
+ *
+ * Where a clip exists it plays on hover (desktop) or tap (touch), over the
+ * still. The still is the poster, so there's never an empty frame while the
+ * video loads.
  */
 function RoomPanel({ room }: { room: (typeof ROOMS)[number] }) {
   const imageLeft = room.side === 'left'
+  const videoRef = useRef<HTMLVideoElement>(null)
+  const panelRef = useRef<HTMLElement>(null)
+  const reduced = useReducedMotion()
 
-  // Both cells are pinned to row 1 and their columns deliberately overlap by
-  // one, so the caption sits on the photograph. Without an explicit row,
-  // grid auto-placement refuses to overlap and drops the caption underneath.
+  // Start fetching the clip once the panel is near the viewport, so the first
+  // hover plays immediately. preload="none" alone means the first hover sits
+  // there fetching 1.1MB and feels broken; preload="auto" would download every
+  // clip for visitors who never reach this section. This is the middle.
+  useEffect(() => {
+    const panel = panelRef.current
+    const video = videoRef.current
+    if (!panel || !video) return
+
+    const io = new IntersectionObserver(
+      (entries) => {
+        if (entries.some((e) => e.isIntersecting)) {
+          video.preload = 'auto'
+          video.load()
+          io.disconnect()
+        }
+      },
+      { rootMargin: '300px' },
+    )
+
+    io.observe(panel)
+    return () => io.disconnect()
+  }, [])
+
+  const play = () => {
+    const v = videoRef.current
+    if (!v) return
+    void v.play().catch(() => {
+      /* autoplay refused — the poster still shows, so nothing breaks */
+    })
+  }
+
+  const stop = () => {
+    const v = videoRef.current
+    if (!v) return
+    v.pause()
+    v.currentTime = 0
+  }
+
   const imageCell = imageLeft
     ? 'sm:col-start-1 sm:col-span-8 sm:row-start-1'
     : 'sm:col-start-5 sm:col-span-8 sm:row-start-1'
@@ -51,13 +101,14 @@ function RoomPanel({ room }: { room: (typeof ROOMS)[number] }) {
     : 'sm:col-start-1 sm:col-span-5 sm:row-start-1 sm:-mr-8 lg:-mr-12'
 
   return (
-    <article className="group relative">
+    <article ref={panelRef} className="group relative">
       <div className="grid items-center gap-y-6 sm:grid-cols-12">
-        {/* Photograph */}
         <div className={`relative ${imageCell}`}>
           <div
             className="relative overflow-hidden transition-transform duration-700 ease-out group-hover:!rotate-0 motion-reduce:!rotate-0"
             style={{ rotate: room.tilt }}
+            onMouseEnter={reduced ? undefined : play}
+            onMouseLeave={reduced ? undefined : stop}
           >
             <img
               src={room.img}
@@ -67,13 +118,49 @@ function RoomPanel({ room }: { room: (typeof ROOMS)[number] }) {
               className="aspect-[4/3] w-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.04] motion-reduce:group-hover:scale-100"
               style={{ objectPosition: room.focal }}
             />
+
+            {room.video && (
+              <video
+                ref={videoRef}
+                src={room.video}
+                poster={room.img}
+                muted
+                loop
+                playsInline
+                preload="none"
+                aria-hidden="true"
+                className="absolute inset-0 h-full w-full object-cover opacity-0 transition-opacity duration-500 group-hover:opacity-100"
+                style={{ objectPosition: room.focal }}
+              />
+            )}
+
             <div
               aria-hidden="true"
               className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-transparent to-navy-950/25"
             />
+
+            {/* Touch devices have no hover, so give them something to press. */}
+            {room.video && (
+              <button
+                type="button"
+                onClick={() => {
+                  const v = videoRef.current
+                  if (!v) return
+                  if (v.paused) {
+                    v.classList.add('opacity-100')
+                    play()
+                  } else {
+                    v.classList.remove('opacity-100')
+                    stop()
+                  }
+                }}
+                className="absolute bottom-3 left-3 z-20 border border-cream-50/40 bg-navy-950/70 px-3 py-1.5 font-sans text-[0.65rem] uppercase tracking-[0.18em] text-cream-50 backdrop-blur-sm sm:hidden"
+              >
+                ▶ Play
+              </button>
+            )}
           </div>
 
-          {/* Rotated stamp, half on the image, half off it. */}
           <span
             className={`absolute -top-3 z-20 border border-amber-400 bg-navy-950 px-3 py-1.5 font-sans text-[0.62rem] uppercase tracking-[0.22em] text-amber-400 ${
               imageLeft ? 'left-4 sm:left-8' : 'right-4 sm:right-8'
@@ -84,7 +171,6 @@ function RoomPanel({ room }: { room: (typeof ROOMS)[number] }) {
           </span>
         </div>
 
-        {/* Caption card, overlapping the photograph's inner edge. */}
         <div className={`relative z-10 ${captionCell}`}>
           <div className="border u-rule bg-navy-950/95 p-6 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.9)] sm:p-7">
             <h3 className="font-display text-[1.7rem] leading-[1.05] sm:text-[2.1rem]">
@@ -97,7 +183,6 @@ function RoomPanel({ room }: { room: (typeof ROOMS)[number] }) {
         </div>
       </div>
 
-      {/* Outlined numeral, bleeding off the outer edge. Decorative. */}
       <span
         aria-hidden="true"
         className={`pointer-events-none absolute -bottom-8 hidden select-none font-display text-[9rem] leading-none text-transparent sm:block lg:text-[12rem] ${
@@ -111,7 +196,36 @@ function RoomPanel({ room }: { room: (typeof ROOMS)[number] }) {
   )
 }
 
-export default function Rooms() {
+/* -------------------------------------------------------------- export ---- */
+
+export default function Rooms({
+  enquiryTeam,
+  onClearEnquiry,
+}: {
+  /** Set when someone pressed "Book them" on a team card. */
+  enquiryTeam: string | null
+  onClearEnquiry: () => void
+}) {
+  const subject = enquiryTeam
+    ? `Booking enquiry — ${enquiryTeam}`
+    : 'Booking enquiry'
+
+  const body = [
+    enquiryTeam ? `We'd like to book ${enquiryTeam}.` : '',
+    '',
+    'Room / venue:',
+    'Date:',
+    'Roughly how many people:',
+    'Anything else:',
+    '',
+  ]
+    .filter((line, i, all) => !(line === '' && all[i - 1] === ''))
+    .join('\n')
+
+  const mailto = `mailto:bookings@sungsungeet.example?subject=${encodeURIComponent(
+    subject,
+  )}&body=${encodeURIComponent(body)}`
+
   return (
     <section
       id="book"
@@ -137,17 +251,38 @@ export default function Rooms() {
           ))}
         </div>
 
-        <div className="mt-24 flex flex-col gap-6 border-t u-rule pt-8 sm:flex-row sm:items-center sm:justify-between">
-          <p className="max-w-lg font-display text-[1.6rem] leading-snug sm:text-[2rem]">
-            Tell us the room, the date, and roughly how many people. We&rsquo;ll
-            send back a set plan and a number.
-          </p>
-          <a
-            href="mailto:bookings@sungsungeet.example?subject=Booking%20enquiry"
-            className="shrink-0 border border-amber-400 px-6 py-3 font-sans text-[0.88rem] text-amber-400 transition-colors hover:bg-amber-400 hover:text-navy-950"
-          >
-            Start an enquiry
-          </a>
+        <div className="mt-24 border-t u-rule pt-8">
+          {enquiryTeam && (
+            <div className="mb-8 flex flex-wrap items-center gap-4 border border-amber-400/50 bg-navy-900 px-5 py-4">
+              <span className="font-sans text-[0.7rem] uppercase tracking-[0.2em] text-amber-400">
+                Enquiring about
+              </span>
+              <span className="font-display text-[1.4rem] text-cream-50">
+                {enquiryTeam}
+              </span>
+              <button
+                type="button"
+                onClick={onClearEnquiry}
+                className="ml-auto font-sans text-[0.78rem] text-cream-400 underline underline-offset-4 hover:text-cream-50"
+              >
+                Clear
+              </button>
+            </div>
+          )}
+
+          <div className="flex flex-col gap-6 sm:flex-row sm:items-center sm:justify-between">
+            <p className="max-w-lg font-display text-[1.6rem] leading-snug sm:text-[2rem]">
+              {enquiryTeam
+                ? `Tell us the room and the date, and we'll come back with what ${enquiryTeam} would play.`
+                : "Tell us the room, the date, and roughly how many people. We'll send back a set plan and a number."}
+            </p>
+            <a
+              href={mailto}
+              className="shrink-0 border border-amber-400 px-6 py-3 font-sans text-[0.88rem] text-amber-400 transition-colors hover:bg-amber-400 hover:text-navy-950"
+            >
+              Start an enquiry
+            </a>
+          </div>
         </div>
       </div>
     </section>

@@ -28,16 +28,28 @@ export default function App() {
   // filters the other.
   const [teamFilter, setTeamFilter] = useState<string | 'all'>('all')
 
+  // Which team a "Book them" press was for, so the enquiry arrives prefilled.
+  const [enquiryTeam, setEnquiryTeam] = useState<string | null>(null)
+
+  const scrollTo = (id: string) => {
+    const el = document.getElementById(id)
+    if (!el) return
+    // Not scrollIntoView — it fights Lenis and misbehaves in embedded frames.
+    window.scrollTo({
+      top: el.getBoundingClientRect().top + window.scrollY,
+      behavior: reduced ? 'auto' : 'smooth',
+    })
+  }
+
+  const bookTeam = (slug: string) => {
+    const team = data.teams.find((t) => t.slug === slug)
+    setEnquiryTeam(team?.name ?? null)
+    scrollTo('book')
+  }
+
   const pickTeamAndScroll = (slug: string) => {
     setTeamFilter((current) => (current === slug ? 'all' : slug))
-    const shows = document.getElementById('shows')
-    if (shows) {
-      // Not scrollIntoView — it fights Lenis and misbehaves in embedded frames.
-      window.scrollTo({
-        top: shows.getBoundingClientRect().top + window.scrollY,
-        behavior: reduced ? 'auto' : 'smooth',
-      })
-    }
+    scrollTo('shows')
   }
 
   if (inMemberArea) return <MemberArea />
@@ -53,8 +65,12 @@ export default function App() {
           teams={data.teams}
           activeSlug={teamFilter}
           onPickTeam={pickTeamAndScroll}
+          onBookTeam={bookTeam}
         />
-        <Rooms />
+        <Rooms
+          enquiryTeam={enquiryTeam}
+          onClearEnquiry={() => setEnquiryTeam(null)}
+        />
         <Community />
         <JoinUs />
       </main>
