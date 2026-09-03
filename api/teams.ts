@@ -16,6 +16,7 @@ export default async function handler(request: Request) {
         t.blurb,
         t.photo_url,
         t.video_url,
+        t.media,
         coalesce(
           (
             select json_agg(json_build_object('name', m.name, 'role', m.role,
@@ -38,8 +39,16 @@ export default async function handler(request: Request) {
           name: r.name,
           tagline: r.tagline,
           blurb: r.blurb,
-          photoUrl: r.photo_url,
-          videoUrl: r.video_url,
+          // `media` is the new shape: an ordered list of slots, showreel
+          // first. photo_url / video_url are kept as a fallback so an older
+          // row still renders something.
+          media:
+            (r.media as unknown[] | null)?.length
+              ? r.media
+              : [
+                  { kind: 'video', src: r.video_url, poster: r.photo_url, label: 'Showreel' },
+                  { kind: 'photo', src: r.photo_url, label: 'Team photo' },
+                ],
           members: r.members ?? [],
         })),
       },

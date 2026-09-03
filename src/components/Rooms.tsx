@@ -1,89 +1,143 @@
 const ROOMS = [
   {
     n: '01',
+    stamp: 'Every Tuesday',
     kind: 'Cafés and open jams',
-    body: 'The Tuesday format. We bring the players, the café brings the room, and anyone who wants the mic gets it.',
+    body: 'We bring the players, the café brings the room, and anyone who wants the mic gets it. Put your name down at the counter.',
     img: '/rooms/cafes.jpg',
     focal: '50% 55%',
+    side: 'left' as const,
+    tilt: '-1.6deg',
   },
   {
     n: '02',
+    stamp: 'Closed events',
     kind: 'Private events and weddings',
-    body: 'Sangeet, cocktail hour, house parties, offices. Setlist built around your people rather than our catalogue.',
+    body: 'Sangeet, cocktail hour, house parties, offices. The setlist gets built around your people, not our catalogue.',
     img: '/rooms/private.jpg',
     focal: '50% 40%',
+    side: 'right' as const,
+    tilt: '1.3deg',
   },
   {
     n: '03',
+    stamp: 'Full PA',
     kind: 'Clubs and stage shows',
-    body: 'Full band, full PA, a proper set. Awards nights, club dates, festival slots across NCR.',
+    body: 'Six pieces, a proper set, and the volume to match. Awards nights, club dates and festival slots across NCR.',
     img: '/rooms/stage.jpg',
     focal: '55% 45%',
+    side: 'left' as const,
+    tilt: '-0.9deg',
   },
 ]
 
 /**
- * Full-bleed photo panels — three tall images side by side on desktop, stacked
- * on phones. The type sits on the photograph rather than beside it, so the
- * band's own rooms carry the section instead of a paragraph describing them.
+ * Editorial spread rather than three equal columns: each room is a tilted
+ * print with a caption card overlapping its corner, an outlined numeral
+ * bleeding off the edge, and a rotated stamp. The alternating sides give the
+ * section a vertical rhythm a symmetric grid can't.
  */
-export default function Rooms() {
-  return (
-    <section
-      id="book"
-      aria-labelledby="book-heading"
-      className="scroll-mt-16 border-t u-rule bg-navy-950 text-cream-50"
-    >
-      <div className="mx-auto max-w-6xl px-5 pt-20 sm:px-10 sm:pt-28">
-        <h2
-          id="book-heading"
-          className="max-w-[16ch] font-display text-section leading-[0.95]"
-        >
-          Teen tarah ke rooms, ek hi band
-        </h2>
-      </div>
+function RoomPanel({ room }: { room: (typeof ROOMS)[number] }) {
+  const imageLeft = room.side === 'left'
 
-      <div className="mt-12 grid grid-cols-1 gap-px bg-cream-50/10 sm:mt-16 sm:grid-cols-3">
-        {ROOMS.map((room) => (
-          <article
-            key={room.kind}
-            className="group relative min-h-[26rem] overflow-hidden bg-navy-900 sm:min-h-[34rem] lg:min-h-[40rem]"
+  // Both cells are pinned to row 1 and their columns deliberately overlap by
+  // one, so the caption sits on the photograph. Without an explicit row,
+  // grid auto-placement refuses to overlap and drops the caption underneath.
+  const imageCell = imageLeft
+    ? 'sm:col-start-1 sm:col-span-8 sm:row-start-1'
+    : 'sm:col-start-5 sm:col-span-8 sm:row-start-1'
+  const captionCell = imageLeft
+    ? 'sm:col-start-8 sm:col-span-5 sm:row-start-1 sm:-ml-8 lg:-ml-12'
+    : 'sm:col-start-1 sm:col-span-5 sm:row-start-1 sm:-mr-8 lg:-mr-12'
+
+  return (
+    <article className="group relative">
+      <div className="grid items-center gap-y-6 sm:grid-cols-12">
+        {/* Photograph */}
+        <div className={`relative ${imageCell}`}>
+          <div
+            className="relative overflow-hidden transition-transform duration-700 ease-out group-hover:!rotate-0 motion-reduce:!rotate-0"
+            style={{ rotate: room.tilt }}
           >
             <img
               src={room.img}
               alt=""
               loading="lazy"
               decoding="async"
-              className="absolute inset-0 h-full w-full object-cover transition-transform duration-700 ease-out group-hover:scale-105 motion-reduce:transition-none motion-reduce:group-hover:scale-100"
+              className="aspect-[4/3] w-full object-cover transition-transform duration-1000 ease-out group-hover:scale-[1.04] motion-reduce:group-hover:scale-100"
               style={{ objectPosition: room.focal }}
             />
-
-            {/* Bottom-weighted scrim: the photo keeps its top half. */}
             <div
               aria-hidden="true"
-              className="absolute inset-0 bg-gradient-to-t from-navy-950 via-navy-950/70 to-navy-950/10"
+              className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-transparent to-navy-950/25"
             />
+          </div>
 
-            <div className="relative flex h-full flex-col justify-end p-6 sm:p-7">
-              <span
-                aria-hidden="true"
-                className="font-display text-[3.5rem] leading-none text-amber-400/90 sm:text-[4.5rem]"
-              >
-                {room.n}
-              </span>
-              <h3 className="mt-3 font-display text-[1.75rem] leading-tight sm:text-[2rem]">
-                {room.kind}
-              </h3>
-              <p className="mt-3 max-w-sm font-sans text-[0.9rem] leading-relaxed text-cream-200">
-                {room.body}
-              </p>
-            </div>
-          </article>
-        ))}
+          {/* Rotated stamp, half on the image, half off it. */}
+          <span
+            className={`absolute -top-3 z-20 border border-amber-400 bg-navy-950 px-3 py-1.5 font-sans text-[0.62rem] uppercase tracking-[0.22em] text-amber-400 ${
+              imageLeft ? 'left-4 sm:left-8' : 'right-4 sm:right-8'
+            }`}
+            style={{ rotate: imageLeft ? '-3deg' : '3deg' }}
+          >
+            {room.stamp}
+          </span>
+        </div>
+
+        {/* Caption card, overlapping the photograph's inner edge. */}
+        <div className={`relative z-10 ${captionCell}`}>
+          <div className="border u-rule bg-navy-950/95 p-6 shadow-[0_24px_60px_-24px_rgba(0,0,0,0.9)] sm:p-7">
+            <h3 className="font-display text-[1.7rem] leading-[1.05] sm:text-[2.1rem]">
+              {room.kind}
+            </h3>
+            <p className="mt-4 font-sans text-[0.9rem] leading-relaxed text-cream-400">
+              {room.body}
+            </p>
+          </div>
+        </div>
       </div>
 
-      <div className="mx-auto max-w-6xl px-5 pb-20 sm:px-10 sm:pb-28">
-        <div className="mt-14 flex flex-col gap-6 border-t u-rule pt-8 sm:flex-row sm:items-center sm:justify-between">
+      {/* Outlined numeral, bleeding off the outer edge. Decorative. */}
+      <span
+        aria-hidden="true"
+        className={`pointer-events-none absolute -bottom-8 hidden select-none font-display text-[9rem] leading-none text-transparent sm:block lg:text-[12rem] ${
+          imageLeft ? '-right-2' : '-left-2'
+        }`}
+        style={{ WebkitTextStroke: '1px rgba(212,141,70,0.38)' }}
+      >
+        {room.n}
+      </span>
+    </article>
+  )
+}
+
+export default function Rooms() {
+  return (
+    <section
+      id="book"
+      aria-labelledby="book-heading"
+      className="scroll-mt-16 overflow-hidden border-t u-rule bg-navy-950 text-cream-50"
+    >
+      <div className="mx-auto max-w-6xl px-5 py-20 sm:px-10 sm:py-28">
+        <header className="max-w-3xl">
+          <p className="font-sans text-[0.72rem] uppercase tracking-[0.24em] text-amber-400">
+            Where we play
+          </p>
+          <h2
+            id="book-heading"
+            className="mt-4 font-display text-section leading-[0.92]"
+          >
+            Teen tarah ke rooms, <em className="text-amber-400">ek hi band</em>
+          </h2>
+        </header>
+
+        <div className="mt-20 space-y-24 sm:space-y-32">
+          {ROOMS.map((room) => (
+            <RoomPanel key={room.kind} room={room} />
+          ))}
+        </div>
+
+        <div className="mt-24 flex flex-col gap-6 border-t u-rule pt-8 sm:flex-row sm:items-center sm:justify-between">
           <p className="max-w-lg font-display text-[1.6rem] leading-snug sm:text-[2rem]">
             Tell us the room, the date, and roughly how many people. We&rsquo;ll
             send back a set plan and a number.

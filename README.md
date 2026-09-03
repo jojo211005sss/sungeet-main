@@ -11,7 +11,10 @@ Single-page site for a Delhi NCR live-music community.
 3. **Teams** — each lineup with its members, photo and showreel, and a link
    through to their dates.
 4. **Rooms** — three full-bleed photo panels for the kinds of gigs they play.
-5. **Join us** — a prefilled mailto for people who want in.
+5. **Community** — a members-only section behind an approval gate. The public
+   part shows what's inside (behind the scenes, meet the cast, how it started)
+   and takes join requests; the gated portal itself is **not built yet**.
+6. **Join us** — a prefilled mailto for people who want to play.
 
 React + Vite + Tailwind v4, GSAP ScrollTrigger + Lenis, deployed on Vercel.
 Stack and conventions follow the existing `sungeet-attendance` repo.
@@ -104,6 +107,11 @@ vercel env add DATABASE_URL
 - `join@sungsungeet.example` — in `JoinUs.tsx` and `Footer.tsx`
 - `https://example.com/tickets/…` — in `db/seed.sql`
 
+### 4a. Community portal is a front door only
+
+The join-request form works, but there is no member login and no gated
+content. Deciding how members authenticate is the next open decision.
+
 ### 4b. Team names are invented
 
 "The Tuesday Trio", "Sufi Collective", "The Full Band" and every member name in
@@ -146,6 +154,43 @@ No palette in this repo was picked by eye.
 Lenis is only instantiated when reduced motion is off — smoothing *is* motion.
 
 Scene copy lives in `src/data/scenes.ts`, art in `src/scenes/Scenes.tsx`.
+
+## Team media: the flip-through stack
+
+`src/components/MediaStack.tsx`. Each team card is a stack of media you turn
+through like pages in a notebook — the next card peeks out behind the top one,
+and tapping, dragging left, or the arrow keys turns the top one away around its
+left edge.
+
+Slot 0 is always the showreel; the rest are photos. Everything is a
+placeholder right now (`src: null` renders a face that says what belongs
+there). The data lives in `teams.media` as ordered slots, and in Postgres as
+`site_teams.media` jsonb — so swapping real media in is a data change.
+
+Two things worth knowing if you touch this:
+
+- Turns **queue**. Tapping fast spawns a second animating card rather than
+  dropping the tap. An earlier version gated on "one turn at a time" and every
+  other tap was silently ignored.
+- The outgoing card is keyed on a turn counter. Without a fresh key React
+  reuses the node, the one-shot CSS animation never replays, `animationend`
+  never fires, and the stack jams permanently. There's a timeout as a second
+  safety net.
+- Pointer input is handled in `onPointerUp`; `onClick` only acts when
+  `e.detail === 0` (keyboard or programmatic). A real tap fires both, which
+  otherwise turns two pages at once.
+
+## Community section
+
+`src/components/Community.tsx` + `api/community-request.ts` +
+`community_requests` in `db/schema.sql`.
+
+Requests are stored as `pending` for a human to approve. **No credentials are
+issued or stored by this site** — the table holds no password or token, and
+approving a request is a staff action.
+
+**Not built:** member sign-in and the gated portal itself. The section says so
+rather than linking to a login that doesn't exist.
 
 ## Calendar: visual direction
 

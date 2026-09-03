@@ -94,6 +94,11 @@ export default function Nav() {
               Book us
             </a>
           </li>
+          <li className="hidden sm:block">
+            <a href="#community" className="hover:text-amber-400">
+              Community
+            </a>
+          </li>
           <li>
             <a href="#join" className="hover:text-amber-400">
               Join us

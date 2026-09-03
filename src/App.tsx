@@ -5,6 +5,7 @@ import ScrollWalkthrough from './components/ScrollWalkthrough'
 import Calendar from './components/Calendar'
 import Teams from './components/Teams'
 import Rooms from './components/Rooms'
+import Community from './components/Community'
 import JoinUs from './components/JoinUs'
 import Footer from './components/Footer'
 import { useLenis } from './lib/useLenis'
@@ -46,6 +47,7 @@ export default function App() {
           onPickTeam={pickTeamAndScroll}
         />
         <Rooms />
+        <Community />
         <JoinUs />
       </main>
       <Footer />

@@ -75,3 +75,25 @@ create table if not exists rsvps (
 );
 
 create index if not exists rsvps_show_id_idx on rsvps (show_id);
+
+-- ------------------------------------------------------ community access ----
+
+-- Requests to join the members-only community section. The public site only
+-- INSERTs here; approving a request and issuing credentials is a staff action.
+-- No password or token is ever stored in this table.
+create table if not exists community_requests (
+  id          bigint generated always as identity primary key,
+  name        text not null,
+  email       text not null unique,
+  phone       text,
+  message     text,
+  status      text not null default 'pending'
+                check (status in ('pending', 'approved', 'rejected')),
+  reviewed_by integer references users (id) on delete set null,
+  reviewed_at timestamptz,
+  created_at  timestamptz not null default now(),
+  updated_at  timestamptz not null default now()
+);
+
+create index if not exists community_requests_status_idx
+  on community_requests (status);
