@@ -145,13 +145,26 @@ export default function ScrollWalkthrough() {
     return () => ctx.revert()
   }, [reduced, isMobile])
 
-  // Keep pin measurements honest when fonts land or the viewport changes.
+  // Keep pin measurements honest when fonts land or the layout really changes.
   useEffect(() => {
     if (reduced) return
-    const onLoad = () => ScrollTrigger.refresh()
-    document.fonts?.ready.then(onLoad)
-    window.addEventListener('resize', onLoad)
-    return () => window.removeEventListener('resize', onLoad)
+
+    document.fonts?.ready.then(() => ScrollTrigger.refresh())
+
+    // Mobile browsers fire `resize` every time the URL bar collapses or
+    // reappears — which happens *while you are scrolling*. Refreshing then
+    // recalculates the pin's start/end mid-gesture and the section reads as
+    // frozen or jumps. Only a width change is a real layout change; height
+    // alone is just browser chrome.
+    let lastWidth = window.innerWidth
+    const onResize = () => {
+      if (window.innerWidth === lastWidth) return
+      lastWidth = window.innerWidth
+      ScrollTrigger.refresh()
+    }
+
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
   }, [reduced])
 
   if (reduced) return <StaticWalkthrough />
@@ -162,7 +175,7 @@ export default function ScrollWalkthrough() {
       ref={trackRef}
       aria-labelledby="walkthrough-heading"
       className="relative"
-      style={{ height: isMobile ? '340vh' : '520vh' }}
+      style={{ height: isMobile ? '340svh' : '520svh' }}
     >
       <h2 id="walkthrough-heading" className="sr-only">
         A walkthrough of one show
@@ -170,7 +183,7 @@ export default function ScrollWalkthrough() {
 
       <div
         ref={stageRef}
-        className="u-grain sticky top-0 h-screen w-full overflow-hidden bg-navy-950"
+        className="u-grain sticky top-0 h-[100svh] w-full overflow-hidden bg-navy-950"
       >
         {/* Art stack. Decorative — the captions carry the meaning. */}
         <div aria-hidden="true" className="absolute inset-0">

@@ -55,7 +55,11 @@
     font-family: var(--font-sans);
     font-synthesis-weight: none;
     -webkit-font-smoothing: antialiased;
-    overflow-x: hidden;
+    /* `clip`, not `hidden`: overflow-x:hidden computes overflow-y to `auto`,
+       which turns <body> into its own scroll container and makes mobile
+       scrolling behave strangely. `clip` suppresses the horizontal scrollbar
+       without creating a scrollport. */
+    overflow-x: clip;
   }
 
   /* Visible, high-contrast focus on every interactive element. Amber reads
