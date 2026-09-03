@@ -5,7 +5,6 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "comment": "Single-page app: serve index.html for any non-API path so a typed or shared URL never 404s. The negative lookahead keeps /api/* on the functions.",
       "source": "/((?!api/).*)",
       "destination": "/"
     }
