@@ -41,7 +41,7 @@ if (tables.length === 0) {
 } else {
   console.log(`Existing tables (${tables.length}):\n`)
   for (const { table_name } of tables as { table_name: string }[]) {
-    const [{ count }] = await sql(`select count(*)::int as count from "${table_name}"`)
+    const [{ count }] = await sql.query(`select count(*)::int as count from "${table_name}"`)
     const cols = await sql`
       select column_name, data_type
       from information_schema.columns

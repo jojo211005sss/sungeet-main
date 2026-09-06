@@ -89,7 +89,10 @@ create table if not exists community_requests (
   message     text,
   status      text not null default 'pending'
                 check (status in ('pending', 'approved', 'rejected')),
-  reviewed_by integer references users (id) on delete set null,
+  -- Who approved it. Plain text, not a foreign key: this database is the
+  -- website's own and has no staff `users` table — that lives in the
+  -- sungeet-attendance database.
+  reviewed_by text,
   reviewed_at timestamptz,
   created_at  timestamptz not null default now(),
   updated_at  timestamptz not null default now()
