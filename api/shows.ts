@@ -1,4 +1,5 @@
 import { db, hasDb, json } from './_db'
+import { toNodeHandler } from './_handler'
 
 /**
  * GET /api/shows — published, upcoming, chronological, with team + lineup.
@@ -13,7 +14,7 @@ import { db, hasDb, json } from './_db'
  */
 const DAY = 86400
 
-export default async function handler(request: Request) {
+async function handler(request: Request) {
   if (request.method !== 'GET') return json({ error: 'method not allowed' }, 405)
 
   // A demo deployment has no database. Answer with a clear, non-error status so
@@ -89,3 +90,5 @@ export default async function handler(request: Request) {
     return json({ error: 'could not load shows' }, 500)
   }
 }
+
+export default toNodeHandler(handler)

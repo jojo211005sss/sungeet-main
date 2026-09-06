@@ -1,4 +1,5 @@
 import { db, hasDb, json } from './_db'
+import { toNodeHandler } from './_handler'
 
 /**
  * POST /api/community-request — someone asking for a login to the members
@@ -13,7 +14,7 @@ const clamp = (v: unknown, max: number): string | null => {
   return s ? s.slice(0, max) : null
 }
 
-export default async function handler(request: Request) {
+async function handler(request: Request) {
   if (request.method !== 'POST') return json({ error: 'method not allowed' }, 405)
 
   let body: Record<string, unknown>
@@ -68,3 +69,5 @@ export default async function handler(request: Request) {
     return json({ error: 'could not save your request' }, 500)
   }
 }
+
+export default toNodeHandler(handler)

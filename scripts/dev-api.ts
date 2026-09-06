@@ -8,7 +8,7 @@
  * same handlers on a port that Vite proxies to, so local dev exercises the
  * real code path.
  */
-import { createServer, type IncomingMessage } from 'node:http'
+import { createServer } from 'node:http'
 import { existsSync, readFileSync } from 'node:fs'
 import { resolve } from 'node:path'
 
@@ -27,16 +27,6 @@ if (existsSync(envPath)) {
     process.env[key] = rawValue.trim().replace(/^["']|["']$/g, '')
   }
 }
-
-type Handler = (request: Request) => Promise<Response> | Response
-
-const readBody = (req: IncomingMessage) =>
-  new Promise<Buffer>((res, rej) => {
-    const chunks: Buffer[] = []
-    req.on('data', (c) => chunks.push(c as Buffer))
-    req.on('end', () => res(Buffer.concat(chunks)))
-    req.on('error', rej)
-  })
 
 const server = createServer(async (req, res) => {
   const url = new URL(req.url ?? '/', `http://localhost:${PORT}`)
@@ -59,25 +49,19 @@ const server = createServer(async (req, res) => {
   try {
     // Cache-busted so edits to a handler are picked up without a restart.
     const mod = await import(`${file}?t=${Date.now()}`)
-    const handler = mod.default as Handler
 
-    const method = req.method ?? 'GET'
-    const body =
-      method === 'GET' || method === 'HEAD' ? undefined : await readBody(req)
+    // Call it exactly as Vercel does — (req, res) — so local development
+    // exercises the same path production takes. Calling it with a Request
+    // here would have hidden the bug that took the deployed API down.
+    await mod.default(req, res)
 
-    const response = await handler(
-      new Request(url.toString(), {
-        method,
-        headers: req.headers as Record<string, string>,
-        body,
-      }),
-    )
-
-    res.writeHead(response.status, Object.fromEntries(response.headers))
-    res.end(Buffer.from(await response.arrayBuffer()))
+    if (!res.writableEnded) {
+      res.writeHead(500, { 'content-type': 'application/json' })
+      res.end(JSON.stringify({ error: 'handler did not send a response' }))
+    }
   } catch (error) {
     console.error(`[dev-api] ${url.pathname}`, error)
-    res.writeHead(500, { 'content-type': 'application/json' })
+    if (!res.headersSent) res.writeHead(500, { 'content-type': 'application/json' })
     res.end(JSON.stringify({ error: 'handler threw', detail: String(error) }))
   }
 })

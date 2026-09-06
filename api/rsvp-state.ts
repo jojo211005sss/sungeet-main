@@ -1,4 +1,5 @@
 import { db, hasDb, isUuid, json } from './_db'
+import { toNodeHandler } from './_handler'
 
 /**
  * GET /api/rsvp-state?visitor=<uuid> — live RSVP counts, plus which shows this
@@ -8,7 +9,7 @@ import { db, hasDb, isUuid, json } from './_db'
  * because the staff backend only changes it daily, but counts move every time
  * someone taps "I'm going", so this one is never cached.
  */
-export default async function handler(request: Request) {
+async function handler(request: Request) {
   if (request.method !== 'GET') return json({ error: 'method not allowed' }, 405)
 
   // A demo deployment has no database. Answer with a clear, non-error status so
@@ -43,3 +44,5 @@ export default async function handler(request: Request) {
     return json({ error: 'could not load rsvp state' }, 500)
   }
 }
+
+export default toNodeHandler(handler)

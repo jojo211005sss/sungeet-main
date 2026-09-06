@@ -1,10 +1,11 @@
 import { db, hasDb, isUuid, json } from './_db'
+import { toNodeHandler } from './_handler'
 
 /**
  * POST /api/rsvp — toggle "I'm going" for one anonymous visitor.
  * Body: { showId: string, visitorId: uuid, going: boolean }
  */
-export default async function handler(request: Request) {
+async function handler(request: Request) {
   if (request.method !== 'POST') return json({ error: 'method not allowed' }, 405)
 
   // A demo deployment has no database. Answer with a clear, non-error status so
@@ -53,3 +54,5 @@ export default async function handler(request: Request) {
     return json({ error: 'could not save rsvp' }, 500)
   }
 }
+
+export default toNodeHandler(handler)
