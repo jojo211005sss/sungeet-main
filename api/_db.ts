@@ -17,8 +17,13 @@ export function json(body: unknown, status = 200, cacheSeconds = 0) {
     status,
     headers: {
       'content-type': 'application/json; charset=utf-8',
+      // max-age=0, must-revalidate keeps the BROWSER honest — it revalidates
+      // every load and gets a cheap 304 — while s-maxage lets the CDN serve a
+      // cached copy for a day. Without the browser half, publishing a show and
+      // refreshing showed nothing: Chrome applied heuristic freshness and the
+      // new dates never appeared.
       'cache-control': cacheSeconds
-        ? `public, s-maxage=${cacheSeconds}, stale-while-revalidate=600`
+        ? `public, max-age=0, must-revalidate, s-maxage=${cacheSeconds}, stale-while-revalidate=600`
         : 'no-store',
     },
   })

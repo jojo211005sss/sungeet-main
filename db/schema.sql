@@ -48,6 +48,12 @@ create table if not exists shows (
   -- Null falls back to a typographic card — see src/components/Calendar.tsx.
   poster_url   text,
   is_published boolean     not null default true,
+  -- The id of the show in the sungeet-attendance database this was published
+  -- from. The two apps use SEPARATE databases, so this is a soft link, not a
+  -- foreign key. It exists so a manager enters a gig once, in attendance, and
+  -- the Website section decorates it rather than creating a second record
+  -- that drifts out of sync.
+  source_show_id text unique,
   created_at   timestamptz not null default now(),
   updated_at   timestamptz not null default now()
 );
