@@ -26,6 +26,7 @@ dist-ssr
 # local env
 .env
 .env.local
+.env.bak
 
 # dev server bookkeeping
 .dev-pids
