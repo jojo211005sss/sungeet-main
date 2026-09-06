@@ -26,3 +26,7 @@ dist-ssr
 # local env
 .env
 .env.local
+
+# dev server bookkeeping
+.dev-pids
+.dev-logs/
