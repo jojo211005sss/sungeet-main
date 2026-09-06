@@ -5,22 +5,37 @@
   "outputDirectory": "dist",
   "rewrites": [
     {
-      "source": "/((?!api/).*)",
+      "source": "/((?!api/)[^.]*)",
       "destination": "/"
     }
   ],
   "headers": [
     {
       "source": "/scenes/(.*)",
-      "headers": [{ "key": "cache-control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        {
+          "key": "cache-control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     },
     {
       "source": "/rooms/(.*)",
-      "headers": [{ "key": "cache-control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        {
+          "key": "cache-control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     },
     {
       "source": "/brand/(.*)",
-      "headers": [{ "key": "cache-control", "value": "public, max-age=31536000, immutable" }]
+      "headers": [
+        {
+          "key": "cache-control",
+          "value": "public, max-age=31536000, immutable"
+        }
+      ]
     }
   ]
 }
