@@ -1,5 +1,5 @@
-import { db, hasDb, isUuid, json } from './_db'
-import { toNodeHandler } from './_handler'
+import { db, hasDb, isUuid, json } from './_db.js'
+import { toNodeHandler } from './_handler.js'
 
 /**
  * POST /api/rsvp — toggle "I'm going" for one anonymous visitor.

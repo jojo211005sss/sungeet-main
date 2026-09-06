@@ -31,3 +31,5 @@ dist-ssr
 # dev server bookkeeping
 .dev-pids
 .dev-logs/
+.vercel
+.env*

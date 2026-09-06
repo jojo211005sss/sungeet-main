@@ -1,5 +1,5 @@
-import { db, hasDb, json } from './_db'
-import { toNodeHandler } from './_handler'
+import { db, hasDb, json } from './_db.js'
+import { toNodeHandler } from './_handler.js'
 
 /**
  * GET /api/shows — published, upcoming, chronological, with team + lineup.
