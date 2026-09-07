@@ -19,6 +19,12 @@ export function useLenis(enabled: boolean) {
       easing: (t: number) => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
       wheelMultiplier: 1,
       touchMultiplier: 1.6,
+      // Drive touch scrolling ourselves instead of leaving it to the browser.
+      // iOS does not fire scroll events during momentum, so anything scrubbed
+      // by scroll position freezes mid-flick and then jumps — which is exactly
+      // what a scroll-driven video looks like when it "doesn't work" on a
+      // phone. With this, the scrub updates on our own clock.
+      syncTouch: true,
     })
 
     lenis.on('scroll', ScrollTrigger.update)

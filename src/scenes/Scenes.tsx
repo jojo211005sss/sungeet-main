@@ -13,14 +13,17 @@ export function PhotoScene({
   index,
   eager,
   useVideo = false,
+  mobile = false,
 }: {
   art: SceneArt
   index: number
   eager: boolean
   /** When true and the scene has a clip, render it for scroll to scrub. */
   useVideo?: boolean
+  /** Prefer the lighter encode. */
+  mobile?: boolean
 }) {
-  const clip = useVideo ? art.video : undefined
+  const clip = useVideo ? (mobile ? (art.videoMobile ?? art.video) : art.video) : undefined
   return (
     <>
       {/* Near: the photograph, pushing in. */}

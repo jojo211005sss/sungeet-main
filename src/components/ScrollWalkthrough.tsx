@@ -95,18 +95,6 @@ export default function ScrollWalkthrough() {
           tl.to(captions[i - 1], { opacity: 0, y: -22, duration: 0.28 }, i - 0.24)
         }
 
-        if (isMobile) {
-          // Phones get the cheap version: whole-scene drift only. No per-layer
-          // transforms, so there is one composited element per scene, not five.
-          tl.fromTo(
-            scene,
-            { scale: 1.015 },
-            { scale: 1.075, duration: 1.4 },
-            Math.max(0, i - 0.2),
-          )
-          return
-        }
-
         // Scrub any clip in this scene across its segment of the timeline, so
         // scroll position maps straight onto playback time.
         const video = scene.querySelector<HTMLVideoElement>('video[data-scrub]')
@@ -127,6 +115,18 @@ export default function ScrollWalkthrough() {
             },
             Math.max(0, i - 0.25),
           )
+        }
+
+        if (isMobile) {
+          // Phones get the cheap version: whole-scene drift only. No per-layer
+          // transforms, so there is one composited element per scene, not five.
+          tl.fromTo(
+            scene,
+            { scale: 1.015 },
+            { scale: 1.075, duration: 1.4 },
+            Math.max(0, i - 0.2),
+          )
+          return
         }
 
         const layers = gsap.utils.toArray<HTMLElement>('[data-depth]', scene)
@@ -175,7 +175,7 @@ export default function ScrollWalkthrough() {
       ref={trackRef}
       aria-labelledby="walkthrough-heading"
       className="relative"
-      style={{ height: isMobile ? '340svh' : '520svh' }}
+      style={{ height: isMobile ? '500svh' : '520svh' }}
     >
       <h2 id="walkthrough-heading" className="sr-only">
         A walkthrough of one show
@@ -198,7 +198,8 @@ export default function ScrollWalkthrough() {
                 art={art}
                 index={i}
                 eager={i < 2}
-                useVideo={!isMobile}
+                useVideo
+                mobile={isMobile}
               />
             </div>
           ))}

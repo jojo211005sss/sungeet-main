@@ -9,12 +9,14 @@
 
 export type SceneArt = {
   src: string
-  /**
-   * Optional clip scrubbed by scroll position. Used on desktop only — phones
-   * get the still, because seeking a video every frame is exactly the kind of
-   * janky scrub the brief said not to ship.
-   */
+  /** Clip scrubbed by scroll position. */
   video?: string
+  /**
+   * Smaller encode for phones: 640px tall, 12fps, baseline profile. Same
+   * scrub, roughly 40% of the bytes, and baseline/yuv420p is what iOS will
+   * reliably decode and seek.
+   */
+  videoMobile?: string
   /** object-position, so the subject survives any viewport aspect ratio. */
   focal: string
   /** Warm bloom placed to match where the light actually is in the frame. */
@@ -30,6 +32,7 @@ export const SCENE_ART: SceneArt[] = [
   {
     src: '/scenes/02-forward.webp',
     video: '/scenes/02-forward.mp4',
+    videoMobile: '/scenes/02-forward.mobile.mp4',
     focal: '50% 50%',
     bloom: { x: '30%', y: '22%', color: 'rgba(227,171,109,0.38)' },
   },
@@ -41,6 +44,7 @@ export const SCENE_ART: SceneArt[] = [
   {
     src: '/scenes/04-theroom.webp',
     video: '/scenes/04-theroom.mp4',
+    videoMobile: '/scenes/04-theroom.mobile.mp4',
     focal: '55% 45%',
     bloom: { x: '70%', y: '40%', color: 'rgba(170,85,56,0.42)' },
   },
