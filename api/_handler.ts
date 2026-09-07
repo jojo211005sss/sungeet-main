@@ -45,8 +45,11 @@ export function toNodeHandler(handler: WebHandler) {
       ).split(',')[0]
 
       const method = req.method ?? 'GET'
-      const body =
+      // Uint8Array, not Buffer: a Buffer works at runtime but is not a valid
+      // BodyInit as far as the DOM types are concerned.
+      const raw =
         method === 'GET' || method === 'HEAD' ? undefined : await readBody(req)
+      const body = raw ? new Uint8Array(raw) : undefined
 
       const response = await handler(
         new Request(`${proto}://${host}${req.url ?? '/'}`, {

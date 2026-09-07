@@ -7,7 +7,7 @@ const ROOMS = [
     stamp: 'Every Tuesday',
     kind: 'Cafés and open jams',
     body: 'We bring the players, the café brings the room, and anyone who wants the mic gets it. Put your name down at the counter.',
-    img: '/rooms/cafes.jpg',
+    img: '/rooms/cafes.webp',
     // No café clip yet — the two we have are from a hall date. Drop a file in
     // and set it here; the hover-to-play rig is already wired.
     video: null as string | null,
@@ -20,7 +20,7 @@ const ROOMS = [
     stamp: 'Closed events',
     kind: 'Private events and weddings',
     body: 'Sangeet, cocktail hour, house parties, offices. The setlist gets built around your people, not our catalogue.',
-    img: '/rooms/private.jpg',
+    img: '/rooms/private.webp',
     video: '/scenes/04-theroom.mp4',
     focal: '50% 40%',
     side: 'right' as const,
@@ -31,7 +31,7 @@ const ROOMS = [
     stamp: 'Full PA',
     kind: 'Clubs and stage shows',
     body: 'Six pieces, a proper set, and the volume to match. Awards nights, club dates and festival slots across NCR.',
-    img: '/rooms/stage.jpg',
+    img: '/rooms/stage.webp',
     video: null as string | null,
     focal: '55% 45%',
     side: 'left' as const,

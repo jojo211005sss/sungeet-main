@@ -12,7 +12,7 @@ import { toNodeHandler } from './_handler.js'
  *
  * RSVP counts are NOT here — they'd be frozen for a day. See /api/rsvp-state.
  */
-const DAY = 86400
+const CACHE_SECONDS = 60
 
 async function handler(request: Request) {
   if (request.method !== 'GET') return json({ error: 'method not allowed' }, 405)
@@ -83,7 +83,7 @@ async function handler(request: Request) {
         })),
       },
       200,
-      DAY,
+      CACHE_SECONDS,
     )
   } catch (err) {
     console.error('[api/shows]', err)

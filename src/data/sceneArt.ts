@@ -23,29 +23,29 @@ export type SceneArt = {
 
 export const SCENE_ART: SceneArt[] = [
   {
-    src: '/scenes/01-room.jpg',
+    src: '/scenes/01-room.webp',
     focal: '50% 45%',
     bloom: { x: '62%', y: '30%', color: 'rgba(212,141,70,0.42)' },
   },
   {
-    src: '/scenes/02-forward.jpg',
+    src: '/scenes/02-forward.webp',
     video: '/scenes/02-forward.mp4',
     focal: '50% 50%',
     bloom: { x: '30%', y: '22%', color: 'rgba(227,171,109,0.38)' },
   },
   {
-    src: '/scenes/03-stage.jpg',
+    src: '/scenes/03-stage.webp',
     focal: '50% 42%',
     bloom: { x: '50%', y: '18%', color: 'rgba(212,141,70,0.5)' },
   },
   {
-    src: '/scenes/04-theroom.jpg',
+    src: '/scenes/04-theroom.webp',
     video: '/scenes/04-theroom.mp4',
     focal: '55% 45%',
     bloom: { x: '70%', y: '40%', color: 'rgba(170,85,56,0.42)' },
   },
   {
-    src: '/scenes/05-after.jpg',
+    src: '/scenes/05-after.webp',
     focal: '55% 45%',
     bloom: { x: '25%', y: '30%', color: 'rgba(22,49,92,0.55)' },
   },

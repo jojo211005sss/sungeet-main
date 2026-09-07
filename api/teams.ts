@@ -2,7 +2,7 @@ import { db, hasDb, json } from './_db.js'
 import { toNodeHandler } from './_handler.js'
 
 /** GET /api/teams — active teams with their default roster. Cached 24h. */
-const DAY = 86400
+const CACHE_SECONDS = 60
 
 async function handler(request: Request) {
   if (request.method !== 'GET') return json({ error: 'method not allowed' }, 405)
@@ -59,7 +59,7 @@ async function handler(request: Request) {
         })),
       },
       200,
-      DAY,
+      CACHE_SECONDS,
     )
   } catch (err) {
     console.error('[api/teams]', err)
