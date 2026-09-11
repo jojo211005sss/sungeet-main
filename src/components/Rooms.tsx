@@ -31,8 +31,10 @@ const ROOMS = [
     stamp: 'Full PA',
     kind: 'Clubs and stage shows',
     body: 'Six pieces, a proper set, and the volume to match. Awards nights, club dates and festival slots across NCR.',
+    // Still and clip are the same hall date — the poster is a frame lifted
+    // straight out of the video, so the hand-off on hover is seamless.
     img: '/rooms/stage.webp',
-    video: null as string | null,
+    video: '/rooms/stage.mp4',
     focal: '55% 45%',
     side: 'left' as const,
     tilt: '-0.9deg',
