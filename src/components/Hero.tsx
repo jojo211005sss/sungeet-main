@@ -25,7 +25,7 @@ export default function Hero() {
     >
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-[58%] top-1/2 h-[80vh] w-[80vh] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-45 blur-3xl"
+        className="pointer-events-none absolute left-1/2 top-1/2 h-[80vh] w-[80vh] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-45 blur-3xl"
         style={{
           background:
             'radial-gradient(circle, rgba(212,141,70,0.28) 0%, rgba(170,85,56,0.13) 45%, transparent 72%)',
@@ -45,8 +45,9 @@ export default function Hero() {
         onPick={pick}
       />
 
-      <div className="pointer-events-none relative z-20 mx-auto flex min-h-[100svh] w-full max-w-6xl flex-1 items-center px-5 sm:px-10">
-        <div className="max-w-[24rem]">
+      {/* Brand sits dead centre; the artists orbit it. */}
+      <div className="pointer-events-none relative z-20 mx-auto flex min-h-[100svh] w-full max-w-6xl flex-1 items-center justify-center px-5 sm:px-10">
+        <div className="max-w-[34rem] text-center">
           <p className="font-sans text-[0.78rem] tracking-[0.26em] text-amber-400">
             Delhi&rsquo;s own music community
           </p>
@@ -59,7 +60,7 @@ export default function Hero() {
             <br />
             <em className="text-amber-400">Sungeet</em>
           </h1>
-          <p className="mt-7 font-sans text-[1.02rem] leading-relaxed text-cream-400">
+          <p className="mx-auto mt-7 max-w-md font-sans text-[1.02rem] leading-relaxed text-cream-400">
             Open jamming every Tuesday, private events, weddings and stage shows
             across Delhi NCR.
           </p>

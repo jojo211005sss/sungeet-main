@@ -25,14 +25,18 @@ type Card = {
   init: boolean
 }
 
-// Homes spread across the whole frame, clear of the left headline.
+// A loose ring around the centred brand. The middle of the frame (roughly
+// x 0.3-0.7, y 0.3-0.7) belongs to the headline, so nothing homes there and
+// the drift amplitude is small enough not to wander across it.
 const HOMES: [number, number][] = [
-  [0.55, 0.2],
-  [0.8, 0.34],
-  [0.9, 0.68],
-  [0.66, 0.82],
-  [0.44, 0.7],
-  [0.72, 0.52],
+  [0.16, 0.24],
+  [0.84, 0.22],
+  [0.09, 0.62],
+  [0.91, 0.6],
+  [0.28, 0.85],
+  [0.72, 0.86],
+  [0.5, 0.12],
+  [0.5, 0.9],
 ]
 
 const STICKER = [
