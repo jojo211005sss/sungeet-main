@@ -33,3 +33,6 @@ dist-ssr
 .dev-logs/
 .vercel
 .env*
+
+# design mockups, never shipped
+public/_mock/

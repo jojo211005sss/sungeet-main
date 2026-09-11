@@ -4,6 +4,10 @@ import tailwindcss from '@tailwindcss/vite'
 
 export default defineConfig({
   plugins: [react(), tailwindcss()],
+  // One copy of three, ever. A second instance (e.g. via three/examples)
+  // silently breaks rendering.
+  resolve: { dedupe: ['three'] },
+  optimizeDeps: { include: ['three', '@react-three/fiber'] },
   server: {
     port: 5173,
     // Send /api to the local handler server (npm run dev:api). Without this
