@@ -1,19 +1,20 @@
 import { useState } from 'react'
 import ArtistField from './ArtistField'
-import { SINGERS } from '../data/singers'
 import { useAudioPlayer } from '../lib/useAudioPlayer'
+import { useFloaters } from '../lib/useFloaters'
 import { useReducedMotion } from '../lib/useMediaQuery'
 
 export default function Hero() {
   const reduced = useReducedMotion()
   const [selected, setSelected] = useState(0)
   const { play, playing } = useAudioPlayer()
-  const singer = SINGERS[selected]
+  const { floaters } = useFloaters()
+  const singer = floaters[selected] ?? floaters[0]
 
   // Click is a real user gesture, which is what lets audio start.
   const pick = (i: number) => {
     setSelected(i)
-    play(SINGERS[i].audio)
+    play(floaters[i].audio)
   }
 
   return (
@@ -37,7 +38,7 @@ export default function Hero() {
       />
 
       <ArtistField
-        singers={SINGERS}
+        singers={floaters}
         selected={selected}
         playing={playing}
         reduced={reduced}

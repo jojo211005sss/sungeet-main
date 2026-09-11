@@ -1,1 +1,1 @@
-{"root":["./api/_db.ts","./api/_handler.ts","./api/community-request.ts","./api/rsvp-state.ts","./api/rsvp.ts","./api/shows.ts","./api/teams.ts","./scripts/db-apply.ts","./scripts/db-inspect.ts","./scripts/dev-api.ts"],"version":"6.0.3"}
+{"root":["./api/_db.ts","./api/_handler.ts","./api/community-request.ts","./api/floaters.ts","./api/media.ts","./api/rsvp-state.ts","./api/rsvp.ts","./api/shows.ts","./api/teams.ts","./scripts/db-apply.ts","./scripts/db-inspect.ts","./scripts/dev-api.ts"],"version":"6.0.3"}
