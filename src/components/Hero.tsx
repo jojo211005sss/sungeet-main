@@ -1,5 +1,6 @@
 import { Suspense, lazy, useState } from 'react'
 import ArtistField from './ArtistField'
+import StageFrame from './StageFrame'
 import { SINGERS } from '../data/singers'
 import { useAudioPlayer } from '../lib/useAudioPlayer'
 import { useReducedMotion } from '../lib/useMediaQuery'
@@ -17,31 +18,6 @@ function MicFallback() {
         className="h-32 w-32 rounded-full opacity-80 ring-1 ring-cream-50/15"
       />
     </div>
-  )
-}
-
-/** Faint concentric orbit rings behind the mic — fills the space, echoes the
-    "living network" feel without clutter. */
-function OrbitRings() {
-  return (
-    <svg
-      aria-hidden="true"
-      className="pointer-events-none absolute left-1/2 top-1/2 -z-0 h-[130vh] w-[130vh] -translate-x-1/2 -translate-y-1/2 opacity-[0.16]"
-      viewBox="0 0 100 100"
-      fill="none"
-    >
-      {[46, 37, 28, 19].map((r, i) => (
-        <ellipse
-          key={r}
-          cx="50"
-          cy="50"
-          rx={r}
-          ry={r * 0.64}
-          stroke={i % 2 ? '#9aa6bb' : '#d48d46'}
-          strokeWidth="0.15"
-        />
-      ))}
-    </svg>
   )
 }
 
@@ -66,7 +42,8 @@ export default function Hero() {
             'radial-gradient(circle, rgba(212,141,70,0.3) 0%, rgba(170,85,56,0.14) 42%, transparent 70%)',
         }}
       />
-      <OrbitRings />
+      {/* Right-hand stage the selected artist performs on. */}
+      <StageFrame singer={singer} playing={playing} />
 
       {/* Drifting / docking artists across the whole frame. */}
       <ArtistField
@@ -78,7 +55,7 @@ export default function Hero() {
       />
 
       {/* ---------------------------------------------------- the big mic */}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 z-20 flex h-[30rem] w-[30rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-[36rem] sm:w-[36rem]">
+      <div className="pointer-events-none absolute left-[44%] top-1/2 z-20 flex h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-[34rem] sm:w-[34rem]">
         <div
           aria-hidden="true"
           className="pointer-events-none absolute bottom-[16%] left-1/2 h-12 w-64 -translate-x-1/2 rounded-[50%] opacity-70 blur-xl"
@@ -132,23 +109,6 @@ export default function Hero() {
         </div>
       </div>
 
-      {/* -------------------------------------- selected info, right, centred */}
-      <div className="pointer-events-none absolute right-5 top-1/2 z-30 hidden -translate-y-1/2 text-right sm:right-10 lg:block">
-        <p className="font-sans text-[0.64rem] uppercase tracking-[0.24em] text-cream-400/60">
-          Now on the mic
-        </p>
-        <p className="mt-2 font-display text-[2.4rem] leading-none text-cream-50">
-          {singer.name}
-        </p>
-        <p className="mt-2 font-sans text-[0.72rem] uppercase tracking-[0.2em] text-amber-400">
-          {singer.role}
-        </p>
-        <p className="ml-auto mt-4 max-w-[13rem] font-sans text-[0.8rem] leading-relaxed text-cream-400">
-          {playing
-            ? 'Playing their set. Tap another artist to switch.'
-            : 'Spin the mic to hear this set, or tap another drifting artist.'}
-        </p>
-      </div>
     </section>
   )
 }

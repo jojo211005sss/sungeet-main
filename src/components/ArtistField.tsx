@@ -29,12 +29,12 @@ type Card = {
 // Homes frame the composition — top corners, sides, bottom — filling the
 // edges around the central mic and the left headline.
 const HOMES: [number, number][] = [
-  [0.5, 0.13],
-  [0.8, 0.17],
-  [0.3, 0.84],
-  [0.56, 0.87],
-  [0.78, 0.83],
-  [0.2, 0.16],
+  [0.4, 0.13],
+  [0.64, 0.12],
+  [0.3, 0.85],
+  [0.55, 0.87],
+  [0.8, 0.86],
+  [0.15, 0.6],
 ]
 
 export default function ArtistField({
@@ -90,9 +90,10 @@ export default function ArtistField({
       const { width: W, height: H } = field.getBoundingClientRect()
       const { selected: sel, playing: play, reduced: red } = state.current
 
-      // Stage spot: just left of centre, vertically middle-low.
-      const dockX = W * 0.5 - Math.min(W, 640) * 0.18
-      const dockY = H * 0.56
+      // Stage spot on the right, matching StageFrame (left-[80%]). The artist
+      // stands on the stage floor, so aim a little above centre.
+      const dockX = W * 0.8
+      const dockY = H * 0.46
 
       cards.forEach((c, i) => {
         if (!c.el) return
@@ -104,7 +105,7 @@ export default function ArtistField({
         if (isSel) {
           tx = dockX
           ty = dockY
-          ts = 1.25
+          ts = 1.5
         } else {
           const wob = red ? 0 : 1
           const sway = play && !red ? Math.sin(t * 3 + i) * 0.008 : 0
@@ -178,16 +179,7 @@ export default function ArtistField({
                     : STICKER,
                 }}
               />
-              {isSel && (
-                <span className="absolute -bottom-6 left-1/2 -translate-x-1/2 whitespace-nowrap text-center">
-                  <span
-                    className="block text-[1.25rem] leading-none text-cream-50"
-                    style={{ fontFamily: '"Caveat","Instrument Serif",cursive', fontWeight: 600 }}
-                  >
-                    {s.name}
-                  </span>
-                </span>
-              )}
+
             </span>
           </button>
         )
