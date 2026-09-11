@@ -26,13 +26,15 @@ type Card = {
   init: boolean
 }
 
-// Homes avoid the left third (headline) and dead centre (mic).
+// Homes frame the composition — top corners, sides, bottom — filling the
+// edges around the central mic and the left headline.
 const HOMES: [number, number][] = [
-  [0.7, 0.22],
-  [0.86, 0.62],
-  [0.5, 0.82],
-  [0.64, 0.44],
-  [0.92, 0.3],
+  [0.5, 0.13],
+  [0.8, 0.17],
+  [0.3, 0.84],
+  [0.56, 0.87],
+  [0.78, 0.83],
+  [0.2, 0.16],
 ]
 
 export default function ArtistField({
@@ -169,7 +171,7 @@ export default function ArtistField({
                 src={s.image}
                 alt=""
                 draggable={false}
-                className="block h-[10rem] w-auto max-w-[8rem] object-contain sm:h-[12rem]"
+                className="block h-[8.5rem] w-auto max-w-[7rem] object-contain sm:h-[10rem]"
                 style={{
                   filter: isSel
                     ? `${STICKER} drop-shadow(0 0 7px rgba(212,141,70,.6))`

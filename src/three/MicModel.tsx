@@ -186,7 +186,7 @@ export default function MicModel({
   const centreY = -(spec.capsuleCenterY + 20.5 + F.baseHeight) / 2 + 2
 
   return (
-    <group ref={group} scale={0.045} position={[0, 0, 0]}>
+    <group ref={group} scale={0.05} position={[0, 0, 0]}>
       <group position={[0, centreY, 0]}>
         <mesh geometry={geometry.base} material={frameMat} castShadow />
         <mesh geometry={geometry.neck} material={frameMat} castShadow />

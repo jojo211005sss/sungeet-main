@@ -68,7 +68,7 @@ export default function MicScene({
       }}
     >
       <Canvas
-        camera={{ position: [0, 0.1, 6.9], fov: 30 }}
+        camera={{ position: [0, 0.1, 7.2], fov: 28 }}
         dpr={[1, 1.75]}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         frameloop={reduced ? 'demand' : 'always'}
