@@ -1,31 +1,20 @@
-import { Suspense, lazy, useState } from 'react'
+import { useState } from 'react'
 import ArtistField from './ArtistField'
-import StageFrame from './StageFrame'
 import { SINGERS } from '../data/singers'
 import { useAudioPlayer } from '../lib/useAudioPlayer'
 import { useReducedMotion } from '../lib/useMediaQuery'
 
-const MicScene = lazy(() => import('../three/MicScene'))
-
-function MicFallback() {
-  return (
-    <div className="flex h-full w-full items-center justify-center">
-      <img
-        src="/brand/sunggeet-mark.png"
-        alt=""
-        width={140}
-        height={140}
-        className="h-32 w-32 rounded-full opacity-80 ring-1 ring-cream-50/15"
-      />
-    </div>
-  )
-}
-
 export default function Hero() {
   const reduced = useReducedMotion()
   const [selected, setSelected] = useState(0)
-  const { play, playing, level } = useAudioPlayer()
+  const { play, playing } = useAudioPlayer()
   const singer = SINGERS[selected]
+
+  // Click is a real user gesture, which is what lets audio start.
+  const pick = (i: number) => {
+    setSelected(i)
+    play(SINGERS[i].audio)
+  }
 
   return (
     <section
@@ -33,54 +22,29 @@ export default function Hero() {
       aria-labelledby="hero-heading"
       className="relative flex min-h-[100svh] flex-col overflow-hidden bg-navy-950"
     >
-      {/* warm glow centred on the mic */}
       <div
         aria-hidden="true"
-        className="pointer-events-none absolute left-1/2 top-1/2 h-[85vh] w-[85vh] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-50 blur-3xl"
+        className="pointer-events-none absolute left-[58%] top-1/2 h-[80vh] w-[80vh] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-45 blur-3xl"
         style={{
           background:
-            'radial-gradient(circle, rgba(212,141,70,0.3) 0%, rgba(170,85,56,0.14) 42%, transparent 70%)',
+            'radial-gradient(circle, rgba(212,141,70,0.28) 0%, rgba(170,85,56,0.13) 45%, transparent 72%)',
         }}
       />
-      {/* Right-hand stage the selected artist performs on. */}
-      <StageFrame singer={singer} playing={playing} />
+      <div
+        aria-hidden="true"
+        className="pointer-events-none absolute -left-[16%] bottom-[-22%] h-[52vh] w-[52vh] rounded-full opacity-80 blur-3xl"
+        style={{ background: 'radial-gradient(circle, rgba(22,49,92,0.9) 0%, transparent 70%)' }}
+      />
 
-      {/* Drifting / docking artists across the whole frame. */}
       <ArtistField
         singers={SINGERS}
         selected={selected}
-        onSelect={setSelected}
         playing={playing}
         reduced={reduced}
+        onPick={pick}
       />
 
-      {/* ---------------------------------------------------- the big mic */}
-      <div className="pointer-events-none absolute left-[44%] top-1/2 z-20 flex h-[28rem] w-[28rem] -translate-x-1/2 -translate-y-1/2 items-center justify-center sm:h-[34rem] sm:w-[34rem]">
-        <div
-          aria-hidden="true"
-          className="pointer-events-none absolute bottom-[16%] left-1/2 h-12 w-64 -translate-x-1/2 rounded-[50%] opacity-70 blur-xl"
-          style={{ background: 'radial-gradient(ellipse, rgba(212,141,70,0.4), transparent 70%)' }}
-        />
-        <div className="pointer-events-auto h-full w-full">
-          <Suspense fallback={<MicFallback />}>
-            <MicScene
-              playing={playing}
-              level={level}
-              reduced={reduced}
-              onSpin={() => play(singer.audio)}
-            />
-          </Suspense>
-        </div>
-        <p
-          aria-hidden="true"
-          className="pointer-events-none absolute bottom-[10%] left-1/2 -translate-x-1/2 whitespace-nowrap font-sans text-[0.68rem] uppercase tracking-[0.32em] text-amber-400/90"
-        >
-          {playing ? 'spin to restart' : 'spin to play'}
-        </p>
-      </div>
-
-      {/* ------------------------------------------- brand, left, centred */}
-      <div className="pointer-events-none relative z-30 mx-auto flex min-h-[100svh] w-full max-w-6xl flex-1 items-center px-5 sm:px-10">
+      <div className="pointer-events-none relative z-20 mx-auto flex min-h-[100svh] w-full max-w-6xl flex-1 items-center px-5 sm:px-10">
         <div className="max-w-[24rem]">
           <p className="font-sans text-[0.78rem] tracking-[0.26em] text-amber-400">
             Delhi&rsquo;s own music community
@@ -98,17 +62,26 @@ export default function Hero() {
             Open jamming every Tuesday, private events, weddings and stage shows
             across Delhi NCR.
           </p>
-          <ol className="mt-9 flex flex-wrap gap-x-6 gap-y-2 font-sans text-[0.72rem] uppercase tracking-[0.2em] text-cream-50/55">
-            {['Tap an artist', 'Spin the mic', 'Listen'].map((s, i) => (
-              <li key={s}>
-                <span className="mr-2 font-semibold text-amber-400">{i + 1}</span>
-                {s}
-              </li>
-            ))}
-          </ol>
+
+          <p
+            aria-live="polite"
+            className="mt-9 font-sans text-[0.72rem] uppercase tracking-[0.22em] text-cream-50/55"
+          >
+            {playing ? (
+              <>
+                <span className="text-amber-400">Now singing</span>
+                {' — '}
+                {singer.name}, {singer.role}
+              </>
+            ) : (
+              <>
+                <span className="mr-2 font-semibold text-amber-400">↗</span>
+                Tap an artist to hear them sing
+              </>
+            )}
+          </p>
         </div>
       </div>
-
     </section>
   )
 }

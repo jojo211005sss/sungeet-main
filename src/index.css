@@ -241,3 +241,17 @@
     transition-duration: 0.01ms !important;
   }
 }
+
+/* Musical notes rising around a singing artist. */
+@keyframes noteRise {
+  0%   { transform: translateY(10px) scale(0.75); opacity: 0; }
+  18%  { opacity: 0.95; }
+  100% { transform: translateY(-58px) scale(1.15); opacity: 0; }
+}
+.note-rise {
+  animation: noteRise 2.4s ease-out infinite;
+  will-change: transform, opacity;
+}
+@media (prefers-reduced-motion: reduce) {
+  .note-rise { animation: none; opacity: 0; }
+}

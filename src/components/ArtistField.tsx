@@ -2,63 +2,71 @@ import { useEffect, useMemo, useRef } from 'react'
 import type { Singer } from '../data/singers'
 
 /**
- * Artist cut-outs that drift slowly around the hero (a lazy VHS-bounce
- * wander). Tap one and it glides to a "stage" spot beside the mic, brightens
- * and grows; the others dull and, while a clip plays, sway gently along.
+ * Artist cut-outs drift slowly around the hero (a lazy VHS-bounce wander).
+ * Click one and they start singing: they stop drifting, brighten and grow,
+ * musical notes float up around them, and their clip plays. Everyone else
+ * dulls and sways along. Click another to switch.
  *
- * One RAF loop lerps every card toward a target each frame, so drifting and
- * the travel-to-stage use the same mechanism and hand off smoothly.
+ * One RAF loop lerps every card toward a per-frame target, so drifting and
+ * the settle-in-place hand off smoothly.
  */
 
 type Card = {
   el: HTMLButtonElement | null
-  // Scatter home + wander params (fractions of the field).
   hx: number
   hy: number
   ampX: number
   ampY: number
   phase: number
   speed: number
-  // Current interpolated transform.
   x: number
   y: number
   s: number
   init: boolean
 }
 
-// Homes frame the composition — top corners, sides, bottom — filling the
-// edges around the central mic and the left headline.
+// Homes spread across the whole frame, clear of the left headline.
 const HOMES: [number, number][] = [
-  [0.4, 0.13],
-  [0.64, 0.12],
-  [0.3, 0.85],
-  [0.55, 0.87],
-  [0.8, 0.86],
-  [0.15, 0.6],
+  [0.55, 0.2],
+  [0.8, 0.34],
+  [0.9, 0.68],
+  [0.66, 0.82],
+  [0.44, 0.7],
+  [0.72, 0.52],
 ]
+
+const STICKER = [
+  'drop-shadow(1.5px 0 0 #fff)',
+  'drop-shadow(-1.5px 0 0 #fff)',
+  'drop-shadow(0 1.5px 0 #fff)',
+  'drop-shadow(0 -1.5px 0 #fff)',
+  'drop-shadow(1px 1px 0 #fff)',
+  'drop-shadow(0 8px 12px rgba(0,0,0,.5))',
+].join(' ')
+
+const NOTES = ['♪', '♫', '♩', '♬', '♪']
 
 export default function ArtistField({
   singers,
   selected,
-  onSelect,
   playing,
   reduced,
+  onPick,
 }: {
   singers: Singer[]
   selected: number
-  onSelect: (i: number) => void
   playing: boolean
   reduced: boolean
+  /** Click a card: select it and start its clip (a real user gesture). */
+  onPick: (i: number) => void
 }) {
   const fieldRef = useRef<HTMLDivElement>(null)
   const raf = useRef<number>(0)
-  // Latest selection/playback read inside the loop without restarting it.
   const state = useRef({ selected, playing, reduced })
   useEffect(() => {
     state.current = { selected, playing, reduced }
   }, [selected, playing, reduced])
 
-  // Stable per-singer objects; the RAF loop mutates el/x/y/s on these in place.
   const cards = useMemo<Card[]>(
     () =>
       singers.map((_, i) => {
@@ -73,7 +81,7 @@ export default function ArtistField({
           speed: 0.12 + (i % 3) * 0.03,
           x: 0,
           y: 0,
-          s: 0.7,
+          s: 0.72,
           init: false,
         }
       }),
@@ -83,37 +91,32 @@ export default function ArtistField({
   useEffect(() => {
     const field = fieldRef.current
     if (!field) return
-    let t0 = performance.now()
+    const t0 = performance.now()
 
     const tick = (now: number) => {
       const t = (now - t0) / 1000
       const { width: W, height: H } = field.getBoundingClientRect()
       const { selected: sel, playing: play, reduced: red } = state.current
 
-      // Stage spot on the right, matching StageFrame (left-[80%]). The artist
-      // stands on the stage floor, so aim a little above centre.
-      const dockX = W * 0.8
-      const dockY = H * 0.46
-
       cards.forEach((c, i) => {
         if (!c.el) return
-        const isSel = i === sel
+        const singing = i === sel && play
 
         let tx: number
         let ty: number
         let ts: number
-        if (isSel) {
-          tx = dockX
-          ty = dockY
-          ts = 1.5
+        if (singing) {
+          // Settle at home and bob gently, as if into the song.
+          const bob = red ? 0 : Math.sin(t * 2.4 + i) * 0.006
+          tx = c.hx * W
+          ty = (c.hy + bob) * H
+          ts = 1.32
         } else {
           const wob = red ? 0 : 1
-          const sway = play && !red ? Math.sin(t * 3 + i) * 0.008 : 0
+          const sway = play && !red ? Math.sin(t * 3 + i) * 0.007 : 0
           tx = (c.hx + Math.sin(t * c.speed + c.phase) * c.ampX * wob) * W
-          ty =
-            (c.hy + Math.cos(t * c.speed * 0.8 + c.phase) * c.ampY * wob + sway) *
-            H
-          ts = 0.62
+          ty = (c.hy + Math.cos(t * c.speed * 0.8 + c.phase) * c.ampY * wob + sway) * H
+          ts = 0.72
         }
 
         if (!c.init) {
@@ -122,18 +125,17 @@ export default function ArtistField({
           c.s = ts
           c.init = true
         } else {
-          // Ease toward the target; faster when travelling to the dock.
-          const k = isSel ? 0.12 : 0.06
+          const k = singing ? 0.12 : 0.06
           c.x += (tx - c.x) * k
           c.y += (ty - c.y) * k
           c.s += (ts - c.s) * k
         }
 
-        const dull = !isSel && play
+        const dull = !singing && play
         c.el.style.transform = `translate(-50%, -50%) translate(${c.x}px, ${c.y}px) scale(${c.s})`
-        c.el.style.opacity = isSel ? '1' : play ? '0.4' : '0.68'
-        c.el.style.zIndex = isSel ? '30' : '10'
-        c.el.style.filter = dull ? 'saturate(0.65) brightness(0.8)' : ''
+        c.el.style.opacity = singing ? '1' : play ? '0.4' : '0.72'
+        c.el.style.zIndex = singing ? '30' : '10'
+        c.el.style.filter = dull ? 'saturate(0.6) brightness(0.8)' : ''
       })
 
       raf.current = requestAnimationFrame(tick)
@@ -142,19 +144,10 @@ export default function ArtistField({
     return () => cancelAnimationFrame(raf.current)
   }, [cards])
 
-  const STICKER = [
-    'drop-shadow(1.5px 0 0 #fff)',
-    'drop-shadow(-1.5px 0 0 #fff)',
-    'drop-shadow(0 1.5px 0 #fff)',
-    'drop-shadow(0 -1.5px 0 #fff)',
-    'drop-shadow(1px 1px 0 #fff)',
-    'drop-shadow(0 8px 12px rgba(0,0,0,.5))',
-  ].join(' ')
-
   return (
     <div ref={fieldRef} className="pointer-events-none absolute inset-0 z-10">
       {singers.map((s, i) => {
-        const isSel = i === selected
+        const singing = i === selected && playing
         return (
           <button
             key={s.id}
@@ -162,24 +155,50 @@ export default function ArtistField({
             ref={(el) => {
               cards[i].el = el
             }}
-            onClick={() => onSelect(i)}
-            aria-label={`${s.name}, ${s.role}${isSel ? ' (selected)' : ''}`}
-            aria-pressed={isSel}
+            onClick={() => onPick(i)}
+            aria-label={`${s.name}, ${s.role}${singing ? ' — singing' : ' — tap to play'}`}
+            aria-pressed={singing}
             className="pointer-events-auto absolute left-0 top-0 origin-center cursor-pointer"
           >
             <span className="relative block">
+              {/* notes rising around the singer */}
+              {singing &&
+                !reduced &&
+                NOTES.map((n, k) => (
+                  <span
+                    key={k}
+                    aria-hidden="true"
+                    className="note-rise absolute text-amber-300"
+                    style={{
+                      left: `${12 + k * 20}%`,
+                      top: '4%',
+                      fontSize: `${1 + (k % 2) * 0.35}rem`,
+                      animationDelay: `${k * 0.42}s`,
+                      textShadow: '0 0 10px rgba(212,141,70,.7)',
+                    }}
+                  >
+                    {n}
+                  </span>
+                ))}
               <img
                 src={s.image}
                 alt=""
                 draggable={false}
-                className="block h-[8.5rem] w-auto max-w-[7rem] object-contain sm:h-[10rem]"
+                className="block h-[9.5rem] w-auto max-w-[7.5rem] object-contain sm:h-[11.5rem]"
                 style={{
-                  filter: isSel
-                    ? `${STICKER} drop-shadow(0 0 7px rgba(212,141,70,.6))`
+                  filter: singing
+                    ? `${STICKER} drop-shadow(0 0 9px rgba(212,141,70,.65))`
                     : STICKER,
                 }}
               />
-
+              {singing && (
+                <span
+                  className="absolute -bottom-7 left-1/2 -translate-x-1/2 whitespace-nowrap text-[1.3rem] leading-none text-cream-50"
+                  style={{ fontFamily: '"Caveat","Instrument Serif",cursive', fontWeight: 600 }}
+                >
+                  {s.name}
+                </span>
+              )}
             </span>
           </button>
         )
