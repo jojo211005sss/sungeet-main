@@ -68,16 +68,16 @@ export default function MicScene({
       }}
     >
       <Canvas
-        camera={{ position: [0, 0.15, 5.2], fov: 32 }}
+        camera={{ position: [0, 0.1, 6.9], fov: 30 }}
         dpr={[1, 1.75]}
         gl={{ antialias: true, alpha: true, powerPreference: 'high-performance' }}
         frameloop={reduced ? 'demand' : 'always'}
         style={{ background: 'transparent' }}
       >
-        <ambientLight intensity={0.35} />
-        <directionalLight position={[3, 4, 5]} intensity={2.2} color="#fff3e0" />
-        <directionalLight position={[-4, 2, -3]} intensity={0.9} color="#9fb4ff" />
-        <pointLight position={[0, -2, 3]} intensity={1.2} color="#d48d46" />
+        <ambientLight intensity={0.5} />
+        <directionalLight position={[3, 4, 5]} intensity={1.1} color="#fff3e0" />
+        <directionalLight position={[-4, 2, -3]} intensity={0.5} color="#9fb4ff" />
+        <pointLight position={[0, -1.5, 3]} intensity={0.6} color="#d48d46" />
         <MicModel handleRef={handle} />
         <Notes active={playing} level={level} />
       </Canvas>

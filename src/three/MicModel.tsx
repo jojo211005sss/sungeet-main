@@ -51,11 +51,11 @@ function studioEnvironment(): THREE.Scene {
     scene.add(m)
   }
   // Warm key from upper left, cool fill from the right, soft top, dim floor.
-  panel(6, 4, 9, '#fff1dc', [-5, 4, 4], [0, 0, 0])
-  panel(5, 5, 4, '#c9d6ff', [6, 1, 2], [0, 0, 0])
-  panel(8, 8, 2.5, '#ffffff', [0, 7, 0], [0, 0, 0])
-  panel(8, 8, 0.6, '#3a2a20', [0, -6, 0], [0, 0, 0])
-  panel(4, 6, 3, '#d48d46', [0, 0, -6], [0, 0, 0])
+  panel(6, 4, 3.2, '#ffe9cf', [-5, 4, 4], [0, 0, 0])
+  panel(5, 5, 1.6, '#bcccf5', [6, 1, 2], [0, 0, 0])
+  panel(8, 8, 1.1, '#f4f4f4', [0, 7, 0], [0, 0, 0])
+  panel(8, 8, 0.4, '#241a12', [0, -6, 0], [0, 0, 0])
+  panel(4, 6, 1.3, '#d48d46', [0, 0, -6], [0, 0, 0])
   return scene
 }
 
@@ -118,7 +118,7 @@ export default function MicModel({
   // no HDR download, no external request.
   useLayoutEffect(() => {
     const pmrem = new THREE.PMREMGenerator(gl)
-    const env = pmrem.fromScene(studioEnvironment(), 0.04).texture
+    const env = pmrem.fromScene(studioEnvironment(), 0.02).texture
     // The R3F scene object is meant to be configured this way; the linter's
     // immutability rule doesn't know that.
     // oxlint-disable-next-line react/immutability
@@ -149,11 +149,11 @@ export default function MicModel({
   }, [])
 
   const frameMat = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: '#171b22', metalness: 0.92, roughness: 0.38 }),
+    () => new THREE.MeshStandardMaterial({ color: '#12203a', metalness: 0.55, roughness: 0.62, envMapIntensity: 0.5 }),
     [],
   )
   const monoMat = useMemo(
-    () => new THREE.MeshStandardMaterial({ color: '#d4d7dc', metalness: 0.95, roughness: 0.28 }),
+    () => new THREE.MeshStandardMaterial({ color: '#e7d8c2', metalness: 0.45, roughness: 0.55, envMapIntensity: 0.55 }),
     [],
   )
 
@@ -186,7 +186,7 @@ export default function MicModel({
   const centreY = -(spec.capsuleCenterY + 20.5 + F.baseHeight) / 2 + 2
 
   return (
-    <group ref={group} scale={0.052} position={[0, 0, 0]}>
+    <group ref={group} scale={0.045} position={[0, 0, 0]}>
       <group position={[0, centreY, 0]}>
         <mesh geometry={geometry.base} material={frameMat} castShadow />
         <mesh geometry={geometry.neck} material={frameMat} castShadow />
