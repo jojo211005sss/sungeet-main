@@ -15,7 +15,9 @@ export type Singer = {
 }
 
 export const SINGERS: Singer[] = [
-  { id: 'artist-1', name: 'Sung Sungeet', role: 'vocals', image: '/singers/artist-1.webp', audio: '/audio/sample-1.mp3' },
+  { id: 'artist-1', name: 'Ayush', role: 'vocals', image: '/singers/artist-1.webp', audio: '/audio/ayush.m4a' },
   { id: 'artist-2', name: 'Sung Sungeet', role: 'vocals', image: '/singers/artist-2.webp', audio: '/audio/sample-2.mp3' },
   { id: 'artist-3', name: 'Sung Sungeet', role: 'vocals', image: '/singers/artist-3.webp', audio: '/audio/sample-3.mp3' },
+  { id: 'artist-4', name: 'Sung Sungeet', role: 'vocals', image: '/singers/artist-4.webp', audio: '/audio/artist-4.m4a' },
+  { id: 'artist-5', name: 'Sung Sungeet', role: 'vocals', image: '/singers/artist-5.webp', audio: '/audio/sample-1.mp3' },
 ]

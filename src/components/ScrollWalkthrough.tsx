@@ -8,6 +8,12 @@ import { useIsMobile, useReducedMotion } from '../lib/useMediaQuery'
 
 gsap.registerPlugin(ScrollTrigger)
 
+// Where each scene starts on the timeline, in scene units. A scene with a
+// bigger span gets more scroll before the next one fades in.
+const SPANS = SCENE_ART.map((a) => a.span ?? 1)
+const STARTS = SPANS.map((_, i) => SPANS.slice(0, i).reduce((t, s) => t + s, 0))
+const TOTAL = SPANS.reduce((t, s) => t + s, 0)
+
 /* -------------------------------------------------------------------------
    Reduced-motion path: no pin, no scrub, no parallax. Each moment is simply
    a section you scroll past. Same content, same order, zero animation.
@@ -79,20 +85,24 @@ export default function ScrollWalkthrough() {
           end: 'bottom bottom',
           scrub: isMobile ? 0.4 : 0.8,
           onUpdate: (self) => {
-            const i = Math.min(n - 1, Math.floor(self.progress * n + 0.001))
+            const p = self.progress * TOTAL + 0.001
+            let i = 0
+            while (i < n - 1 && STARTS[i + 1] <= p) i++
             setActive((prev) => (prev === i ? prev : i))
           },
         },
       })
 
       scenes.forEach((scene, i) => {
-        // Each scene owns one unit of the timeline. Incoming art fades up over
+        const at = STARTS[i]
+        const span = SPANS[i]
+        // Each scene owns `span` units of the timeline. Incoming art fades up over
         // the outgoing one, which stays put underneath — no double-exposure
         // brightening mid-crossfade.
         if (i > 0) {
-          tl.to(scene, { opacity: 1, duration: 0.42 }, i - 0.21)
-          tl.to(captions[i], { opacity: 1, y: 0, duration: 0.34 }, i - 0.1)
-          tl.to(captions[i - 1], { opacity: 0, y: -22, duration: 0.28 }, i - 0.24)
+          tl.to(scene, { opacity: 1, duration: 0.42 }, at - 0.21)
+          tl.to(captions[i], { opacity: 1, y: 0, duration: 0.34 }, at - 0.1)
+          tl.to(captions[i - 1], { opacity: 0, y: -22, duration: 0.28 }, at - 0.24)
         }
 
         // Scrub any clip in this scene across its segment of the timeline, so
@@ -104,7 +114,7 @@ export default function ScrollWalkthrough() {
             playhead,
             {
               t: 1,
-              duration: 1.5,
+              duration: 0.5 + span,
               onUpdate: () => {
                 // readyState < 2 means no frame is decoded yet; seeking then
                 // throws the element into a bad state on Safari.
@@ -113,7 +123,7 @@ export default function ScrollWalkthrough() {
                 }
               },
             },
-            Math.max(0, i - 0.25),
+            Math.max(0, at - 0.25),
           )
         }
 
@@ -123,8 +133,8 @@ export default function ScrollWalkthrough() {
           tl.fromTo(
             scene,
             { scale: 1.015 },
-            { scale: 1.075, duration: 1.4 },
-            Math.max(0, i - 0.2),
+            { scale: 1.075, duration: 0.4 + span },
+            Math.max(0, at - 0.2),
           )
           return
         }
@@ -135,8 +145,8 @@ export default function ScrollWalkthrough() {
           tl.fromTo(
             layer,
             { yPercent: 4 * d, scale: 1 + 0.03 * d },
-            { yPercent: -7 * d, scale: 1 + 0.16 * d, duration: 1.5 },
-            Math.max(0, i - 0.25),
+            { yPercent: -7 * d, scale: 1 + 0.16 * d, duration: 0.5 + span },
+            Math.max(0, at - 0.25),
           )
         })
       })
@@ -193,7 +203,8 @@ export default function ScrollWalkthrough() {
       ref={trackRef}
       aria-labelledby="walkthrough-heading"
       className="relative"
-      style={{ height: isMobile ? '500svh' : '520svh' }}
+      // ~100svh of scroll per scene unit, so longer scenes make the track taller.
+      style={{ height: `${Math.round((isMobile ? 100 : 104) * TOTAL)}svh` }}
     >
       <h2 id="walkthrough-heading" className="sr-only">
         A walkthrough of one show

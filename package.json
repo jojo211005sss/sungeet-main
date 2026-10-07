@@ -10,7 +10,9 @@
     "preview": "vite preview",
     "dev:api": "tsx scripts/dev-api.ts",
     "db:inspect": "tsx scripts/db-inspect.ts",
-    "db:apply": "tsx scripts/db-apply.ts"
+    "db:apply": "tsx scripts/db-apply.ts",
+    "member": "tsx scripts/member.ts",
+    "enquiries": "tsx scripts/enquiries.ts"
   },
   "dependencies": {
     "@neondatabase/serverless": "^1.1.0",

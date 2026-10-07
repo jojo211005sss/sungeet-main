@@ -25,10 +25,16 @@ export default function MediaStack({
   items,
   monogram,
   accent = '#d48d46',
+  paper = false,
+  aspect = 'aspect-[4/5]',
 }: {
   items: MediaItem[]
   monogram: string
   accent?: string
+  /** Sits on a light surface (a polaroid frame), so the controls go dark. */
+  paper?: boolean
+  /** Tailwind aspect class for the stack. */
+  aspect?: string
 }) {
   const reduced = useReducedMotion()
   const [index, setIndex] = useState(0)
@@ -84,7 +90,7 @@ export default function MediaStack({
 
   return (
     <div className="relative select-none" style={{ perspective: '1400px' }}>
-      <div className="relative aspect-[4/5]">
+      <div className={`relative ${aspect}`}>
         {/* Behind-cards first so the top card paints last. */}
         {[...depths].reverse().map((d) => {
           const itemIndex = (index + d) % count
@@ -163,13 +169,18 @@ export default function MediaStack({
             className={`h-0.5 transition-all duration-300 ${
               i === index ? 'w-6' : 'w-2.5'
             }`}
-            style={{ background: i === index ? accent : 'rgba(247,244,239,0.25)' }}
+            style={{
+              background: i === index ? accent : paper ? 'rgba(5,12,25,0.2)' : 'rgba(247,244,239,0.25)',
+            }}
           />
         ))}
-        <span className="ml-auto font-sans text-[0.66rem] uppercase tracking-[0.18em] text-cream-400/70">
+        <span
+          className={`ml-auto font-sans text-[0.66rem] uppercase tracking-[0.18em] ${
+            paper ? 'text-navy-800/60' : 'text-cream-400/70'
+          }`}
+        >
           {current.kind === 'video' ? 'Showreel' : `Photo ${index}`}
-          {' · '}
-          {current.src ? 'tap to turn' : 'pending'}
+          {!current.src ? ' · pending' : count > 1 ? ' · tap to turn' : ''}
         </span>
       </div>
     </div>

@@ -73,8 +73,8 @@ export default function Nav() {
           </span>
         </a>
 
-        <ul className="flex items-baseline gap-4 font-sans text-[0.8rem] sm:gap-6 sm:text-[0.85rem]">
-          <li>
+        <ul className="flex items-baseline gap-4 whitespace-nowrap font-sans text-[0.8rem] sm:gap-6 sm:text-[0.85rem]">
+          <li className="hidden sm:block">
             <a href="#walkthrough" className="hover:text-amber-400">
               A night
             </a>
@@ -102,6 +102,14 @@ export default function Nav() {
           <li>
             <a href="#join" className="hover:text-amber-400">
               Join us
+            </a>
+          </li>
+          <li>
+            <a
+              href="#member"
+              className="border border-amber-400 px-3 py-1.5 text-amber-400 transition-colors hover:bg-amber-400 hover:text-navy-950"
+            >
+              Members
             </a>
           </li>
         </ul>

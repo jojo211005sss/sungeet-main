@@ -36,3 +36,4 @@ dist-ssr
 
 # design mockups, never shipped
 public/_mock/
+.previews/

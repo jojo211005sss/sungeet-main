@@ -106,3 +106,55 @@ create table if not exists community_requests (
 
 create index if not exists community_requests_status_idx
   on community_requests (status);
+
+-- People who can sign in to the members section. Created by hand with
+-- `npm run member -- add <username> "<Name>"`; there is no self sign-up.
+-- password_hash is scrypt — see api/_member.ts.
+create table if not exists members (
+  id               bigint generated always as identity primary key,
+  username         text        not null unique,
+  name             text        not null,
+  password_hash    text        not null,
+  is_active        boolean     not null default true,
+  -- Brute-force brake: 5 wrong passwords locks the account for 15 minutes.
+  failed_attempts  int         not null default 0,
+  locked_until     timestamptz,
+  created_at       timestamptz not null default now()
+);
+
+-- One row per signed-in browser. The cookie holds a random token; only its
+-- sha256 is stored, so a leaked table can't be replayed as sessions.
+create table if not exists member_sessions (
+  token_hash  text        primary key,
+  member_id   bigint      not null references members (id) on delete cascade,
+  expires_at  timestamptz not null,
+  created_at  timestamptz not null default now()
+);
+
+create index if not exists member_sessions_member_id_idx
+  on member_sessions (member_id);
+
+-- ------------------------------------------------------ booking enquiries ----
+
+-- Sent from the artists page: someone picks artists like a shopping list and
+-- sends one enquiry for all of them. The public site only INSERTs here.
+create table if not exists booking_enquiries (
+  id          bigint generated always as identity primary key,
+  name        text        not null,
+  email       text,
+  phone       text,
+  event_date  date,
+  city        text,
+  event_type  text,
+  guests      int,
+  message     text,
+  -- Artist names as shown on the site at the time of asking.
+  artists     jsonb       not null,
+  status      text        not null default 'new'
+                check (status in ('new', 'replied', 'booked', 'closed')),
+  created_at  timestamptz not null default now(),
+  check (email is not null or phone is not null)
+);
+
+create index if not exists booking_enquiries_created_at_idx
+  on booking_enquiries (created_at desc);

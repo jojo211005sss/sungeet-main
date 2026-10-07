@@ -152,10 +152,6 @@ export default function Community() {
               >
                 Member sign-in
               </a>
-              {' '}
-              <span className="text-cream-50/40">
-                — prototype, accepts anything
-              </span>
             </p>
           </div>
 

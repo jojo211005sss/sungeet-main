@@ -1,4 +1,4 @@
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useReducedMotion } from '../lib/useMediaQuery'
 
 const ROOMS = [
@@ -7,11 +7,12 @@ const ROOMS = [
     stamp: 'Every Tuesday',
     kind: 'Cafés and open jams',
     body: 'We bring the players, the café brings the room, and anyone who wants the mic gets it. Put your name down at the counter.',
-    img: '/rooms/cafes.webp',
-    // No café clip yet — the two we have are from a hall date. Drop a file in
-    // and set it here; the hover-to-play rig is already wired.
-    video: null as string | null,
-    focal: '50% 55%',
+    // A Tuesday at Roots: the still is the clip's first frame, so hover hands off seamlessly.
+    img: '/rooms/cafes-jam.webp',
+    video: '/rooms/cafes.mp4' as string | null,
+    /** The clip's own audio is worth hearing: offer a play-with-sound button. */
+    sound: true,
+    focal: '50% 50%',
     side: 'left' as const,
     tilt: '-1.6deg',
   },
@@ -21,7 +22,8 @@ const ROOMS = [
     kind: 'Private events and weddings',
     body: 'Sangeet, cocktail hour, house parties, offices. The setlist gets built around your people, not our catalogue.',
     img: '/rooms/private.webp',
-    video: '/scenes/04-theroom.mp4',
+    // Its own copy: the walkthrough's scene 04 clip has since been replaced.
+    video: '/rooms/private.mp4',
     focal: '50% 40%',
     side: 'right' as const,
     tilt: '1.3deg',
@@ -55,6 +57,8 @@ function RoomPanel({ room }: { room: (typeof ROOMS)[number] }) {
   const videoRef = useRef<HTMLVideoElement>(null)
   const panelRef = useRef<HTMLElement>(null)
   const reduced = useReducedMotion()
+  const [withSound, setWithSound] = useState(false)
+  const hasSound = 'sound' in room && room.sound
 
   // Start fetching the clip once the panel is near the viewport, so the first
   // hover plays immediately. preload="none" alone means the first hover sits
@@ -95,6 +99,24 @@ function RoomPanel({ room }: { room: (typeof ROOMS)[number] }) {
     v.currentTime = 0
   }
 
+  // Sound needs a click or tap — browsers won't unmute on hover.
+  const toggleSound = () => {
+    const v = videoRef.current
+    if (!v) return
+    if (withSound) {
+      v.muted = true
+      v.classList.remove('opacity-100')
+      stop()
+      setWithSound(false)
+    } else {
+      v.currentTime = 0
+      v.muted = false
+      v.classList.add('opacity-100')
+      void v.play().catch(() => setWithSound(false))
+      setWithSound(true)
+    }
+  }
+
   const imageCell = imageLeft
     ? 'sm:col-start-1 sm:col-span-8 sm:row-start-1'
     : 'sm:col-start-5 sm:col-span-8 sm:row-start-1'
@@ -110,7 +132,8 @@ function RoomPanel({ room }: { room: (typeof ROOMS)[number] }) {
             className="relative overflow-hidden transition-transform duration-700 ease-out group-hover:!rotate-0 motion-reduce:!rotate-0"
             style={{ rotate: room.tilt }}
             onMouseEnter={reduced ? undefined : play}
-            onMouseLeave={reduced ? undefined : stop}
+            // Leaving the picture stops the silent preview, never a clip someone chose to hear.
+            onMouseLeave={reduced || withSound ? undefined : stop}
           >
             <img
               src={room.img}
@@ -141,8 +164,19 @@ function RoomPanel({ room }: { room: (typeof ROOMS)[number] }) {
               className="absolute inset-0 bg-gradient-to-t from-navy-950/80 via-transparent to-navy-950/25"
             />
 
+            {hasSound && (
+              <button
+                type="button"
+                onClick={toggleSound}
+                aria-pressed={withSound}
+                className="absolute bottom-3 left-3 z-20 border border-amber-400 bg-navy-950/75 px-3.5 py-2 font-sans text-[0.72rem] uppercase tracking-[0.16em] text-amber-400 backdrop-blur-sm transition-colors hover:bg-amber-400 hover:text-navy-950"
+              >
+                {withSound ? '■ Stop' : '▶ Play with sound'}
+              </button>
+            )}
+
             {/* Touch devices have no hover, so give them something to press. */}
-            {room.video && (
+            {room.video && !hasSound && (
               <button
                 type="button"
                 onClick={() => {

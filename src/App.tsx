@@ -7,6 +7,7 @@ import Teams from './components/Teams'
 import Rooms from './components/Rooms'
 import Community from './components/Community'
 import MemberArea from './components/MemberArea'
+import ArtistsPage from './components/ArtistRoster'
 import JoinUs from './components/JoinUs'
 import Footer from './components/Footer'
 import { useLenis } from './lib/useLenis'
@@ -18,9 +19,10 @@ export default function App() {
   const reduced = useReducedMotion()
   const hash = useHashView()
   const inMemberArea = hash === '#member'
+  const inArtists = hash === '#artists'
 
-  // Lenis is for the long scrolling page; the member area is a plain document.
-  useLenis(!reduced && !inMemberArea)
+  // Lenis is for the long scrolling page; the member area and artists page are plain documents.
+  useLenis(!reduced && !inMemberArea && !inArtists)
 
   const data = useSiteData()
 
@@ -52,7 +54,8 @@ export default function App() {
     scrollTo('shows')
   }
 
-  if (inMemberArea) return <MemberArea />
+  if (inMemberArea) return <MemberArea teams={data.teams} />
+  if (inArtists) return <ArtistsPage teams={data.teams} />
 
   return (
     <>

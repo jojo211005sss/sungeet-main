@@ -18,20 +18,17 @@ export type Team = {
 export const FALLBACK_TEAMS: Team[] = [
   {
     slug: 'tuesday-trio',
-    name: 'The Tuesday Trio',
+    name: 'Team Sahil',
     tagline: 'The open-jam house band',
     blurb:
       'Three of us hold the room down every Tuesday so anyone who wants the mic can take it. Jazz standards early, whatever the room asks for after.',
     media: [
-      { kind: 'video', src: null, poster: null, label: 'Showreel' },
-      { kind: 'photo', src: null, label: 'On the floor' },
-      { kind: 'photo', src: null, label: 'The room' },
-      { kind: 'photo', src: null, label: 'After the set' },
+      { kind: 'video', src: '/teams/team-sahil.mp4', poster: '/teams/team-sahil-poster.jpg', label: 'Showreel' },
     ],
     members: [
-      { name: 'Aditya', role: 'vocals, guitar' },
-      { name: 'Rhea', role: 'vocals' },
-      { name: 'Kabir', role: 'cajon' },
+      { name: 'Sahil', role: 'vocals', photoUrl: '/teams/sahil.webp' },
+      { name: 'Tanmay', role: 'vocals', photoUrl: '/teams/tanmay.webp' },
+      { name: 'Ayush', role: 'vocals', photoUrl: '/teams/ayush.webp' },
     ],
   },
   {

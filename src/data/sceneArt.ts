@@ -21,6 +21,8 @@ export type SceneArt = {
   focal: string
   /** Warm bloom placed to match where the light actually is in the frame. */
   bloom: { x: string; y: string; color: string }
+  /** How much scroll this scene gets, relative to the others (default 1). */
+  span?: number
 }
 
 export const SCENE_ART: SceneArt[] = [
@@ -37,15 +39,18 @@ export const SCENE_ART: SceneArt[] = [
     bloom: { x: '30%', y: '22%', color: 'rgba(227,171,109,0.38)' },
   },
   {
+    // A frame from scene 04's clip: the singer at the mic, the room lit up in front of him.
     src: '/scenes/03-stage.webp',
-    focal: '50% 42%',
+    focal: '28% 40%',
     bloom: { x: '50%', y: '18%', color: 'rgba(212,141,70,0.5)' },
   },
   {
     src: '/scenes/04-theroom.webp',
     video: '/scenes/04-theroom.mp4',
     videoMobile: '/scenes/04-theroom.mobile.mp4',
-    focal: '55% 45%',
+    focal: '50% 58%',
+    // A 13.7s clip: give it room so the scrub doesn't race.
+    span: 1.8,
     bloom: { x: '70%', y: '40%', color: 'rgba(170,85,56,0.42)' },
   },
   {

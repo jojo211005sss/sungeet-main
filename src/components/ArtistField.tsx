@@ -39,6 +39,15 @@ const HOMES: [number, number][] = [
   [0.5, 0.9],
 ]
 
+/**
+ * Per-cut-out size tweaks. Every floater shares one height, so a full-body
+ * shot reads smaller than a waist-up one; nudge those here.
+ * ponytail: keyed by image path; move to a floaters.size column if the admin needs it.
+ */
+const SIZE: Record<string, number> = {
+  '/singers/artist-3.webp': 1.1,
+}
+
 const STICKER = [
   'drop-shadow(1.5px 0 0 #fff)',
   'drop-shadow(-1.5px 0 0 #fff)',
@@ -190,6 +199,7 @@ export default function ArtistField({
                 draggable={false}
                 className="block h-[9.5rem] w-auto max-w-[7.5rem] object-contain sm:h-[11.5rem]"
                 style={{
+                  zoom: SIZE[s.image],
                   filter: singing
                     ? `${STICKER} drop-shadow(0 0 9px rgba(212,141,70,.65))`
                     : STICKER,

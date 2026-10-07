@@ -1,7 +1,9 @@
 /**
- * Placeholder content for the member portal. Every word and every clip below
- * is invented — nothing here is a real quote from a real person. Replace
- * wholesale once there's actual material. See README.
+ * Content for the members section. Lives on the server, not in the frontend
+ * bundle, so it only ever reaches a signed-in member via /api/member.
+ *
+ * Every word below is placeholder — nothing here is a real quote from a real
+ * person. Replace wholesale once there's actual material.
  */
 
 export type Clip = {
@@ -64,3 +66,7 @@ export const ORIGIN: Beat[] = [
   { year: '—', title: 'Har Tuesday', body: 'Placeholder. How a one-off became a standing night.' },
   { year: '—', title: 'Now', body: 'Placeholder. Private events, club dates, and a community that outgrew the corner it started in.' },
 ]
+
+export type PortalContent = { clips: Clip[]; cast: CastStory[]; origin: Beat[] }
+
+export const PORTAL: PortalContent = { clips: CLIPS, cast: CAST, origin: ORIGIN }
