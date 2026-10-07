@@ -145,6 +145,24 @@ export default function ScrollWalkthrough() {
     return () => ctx.revert()
   }, [reduced, isMobile])
 
+  // iOS Safari ignores preload="auto": it fetches nothing until the clip has
+  // played once, so readyState never reaches 2 and the scrub never seeks. A
+  // muted play-then-pause primes the decoder. Low Power Mode blocks even that,
+  // so retry on the first touch, which counts as a user gesture.
+  useEffect(() => {
+    if (reduced) return
+    const prime = () =>
+      stageRef.current
+        ?.querySelectorAll<HTMLVideoElement>('video[data-scrub]')
+        .forEach((v) => {
+          if (v.readyState >= 2) return
+          v.play().then(() => v.pause(), () => {})
+        })
+    prime()
+    window.addEventListener('touchstart', prime, { once: true, passive: true })
+    return () => window.removeEventListener('touchstart', prime)
+  }, [reduced, isMobile])
+
   // Keep pin measurements honest when fonts land or the layout really changes.
   useEffect(() => {
     if (reduced) return
