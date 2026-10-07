@@ -84,7 +84,7 @@ export default function Community() {
             id="community-heading"
             className="mt-4 font-display text-section leading-[0.92]"
           >
-            Andar aana hai?
+            Request an invitation
           </h2>
           <p className="mt-5 max-w-xl font-sans text-[0.98rem] leading-relaxed text-cream-200">
             There&rsquo;s a part of this we don&rsquo;t put on the internet. Ask

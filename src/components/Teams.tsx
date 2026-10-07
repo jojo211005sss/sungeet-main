@@ -28,7 +28,7 @@ export default function Teams({
       <div className="mx-auto max-w-6xl px-5 py-20 sm:px-10 sm:py-28">
         <header className="max-w-2xl">
           <h2 id="teams-heading" className="font-display text-section leading-[0.95]">
-            Kaun baja raha hai
+            Meet the lineups
           </h2>
           <p className="mt-4 font-sans text-[0.95rem] leading-relaxed text-cream-400">
             Not one fixed band. Depending on the room, a different lineup goes

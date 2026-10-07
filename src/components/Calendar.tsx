@@ -333,7 +333,7 @@ export default function Calendar({
       <div className="mx-auto max-w-6xl px-4 py-20 sm:px-8 sm:py-28">
         <header className="mb-8">
           <h2 id="shows-heading" className="font-display text-section leading-[0.95]">
-            Aage kahan baj rahe hain
+            Upcoming performances
           </h2>
           <p className="mt-3 max-w-lg font-sans text-[0.95rem] leading-relaxed text-cream-400">
             Pick a date to see who&rsquo;s playing. Café nights are open to
