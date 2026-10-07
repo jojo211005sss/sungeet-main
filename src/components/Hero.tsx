@@ -7,12 +7,14 @@ import { useReducedMotion } from '../lib/useMediaQuery'
 export default function Hero() {
   const reduced = useReducedMotion()
   const [selected, setSelected] = useState(0)
-  const { play, playing } = useAudioPlayer()
+  const { play, stop, playing } = useAudioPlayer()
   const { floaters } = useFloaters()
   const singer = floaters[selected] ?? floaters[0]
 
   // Click is a real user gesture, which is what lets audio start.
+  // Tapping whoever is already singing stops them; anyone else switches.
   const pick = (i: number) => {
+    if (i === selected && playing) return stop()
     setSelected(i)
     play(floaters[i].audio)
   }
